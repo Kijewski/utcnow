@@ -1,0 +1,55 @@
+[package]
+name = "utcnow"
+version = "0.0.0-pre1"
+edition = "2018"
+readme = "README.md"
+categories = ["date-and-time", "no-std"]
+keywords = ["time", "unixtime", "utc", "no_std", "cross-platform"]
+authors = ["René Kijewski <crates.io@k6i.de>"]
+repository = "https://github.com/Kijewski/utcnow"
+description = "[WIP] Get the current unixtime in a no-std context"
+license = "Apache-2.0"
+
+[features]
+default = ["std"]
+std = []
+
+[dev-dependencies]
+libc = { version = "0.2.126", default-features = false }
+
+[target.'cfg(target_os = "dragonfly")'.dependencies]
+rustix = { version = "0.35.7", features = ["time"] }
+
+[target.'cfg(target_os = "emscripten")'.dependencies]
+rustix = { version = "0.35.7", features = ["time"] }
+
+[target.'cfg(target_os = "freebsd")'.dependencies]
+rustix = { version = "0.35.7", features = ["time"] }
+
+[target.'cfg(target_os = "ios")'.dependencies]
+rustix = { version = "0.35.7", features = ["time"] }
+
+[target.'cfg(target_os = "linux")'.dependencies]
+rustix = { version = "0.35.7", features = ["time"] }
+
+[target.'cfg(target_os = "macos")'.dependencies]
+rustix = { version = "0.35.7", features = ["time"] }
+
+[target.'cfg(target_os = "openbsd")'.dependencies]
+rustix = { version = "0.35.7", features = ["time"] }
+
+[target.'cfg(target_os = "redox")'.dependencies]
+rustix = { version = "0.35.7", features = ["time"] }
+
+[target.'cfg(target_os = "wasi")'.dependencies]
+rustix = { version = "0.35.7", features = ["time"] }
+
+[package.metadata.docs.rs]
+all-features = true
+rustdoc-args = ["--cfg", "docsrs"]
+
+[profile.dev]
+panic = "abort"
+
+[profile.release]
+panic = "abort"

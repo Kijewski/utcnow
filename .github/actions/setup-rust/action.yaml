@@ -1,0 +1,55 @@
+name: Setup Rust Environment
+
+inputs:
+  key:
+    description: Cache key
+    required: true
+  toolchain:
+    description: Pass-through to toolchain on actions-rs
+    default: stable
+    required: false
+  components:
+    description: Pass-through to components on actions-rs
+    required: false
+  target:
+    description: Pass-through to components on actions-rs
+    required: false
+
+
+runs:
+  using: composite
+  steps:
+    - name: Rustup Cache
+      uses: actions/cache@v3
+      with:
+        path: |
+          ~/.rustup/downloads
+          ~/.rustup/toolchains
+          ~/.rustup/update-hashes
+        key: rustup-${{ runner.os }}-${{ inputs.target }}
+        restore-keys: rustup-${{ runner.os }}-
+
+    - name: Install Toolchain
+      uses: actions-rs/toolchain@v1
+      id: toolchain-install
+      with:
+        profile: minimal
+        toolchain: ${{ inputs.toolchain }}
+        components: ${{ inputs.components }}
+        target: ${{ inputs.target }}
+        override: true
+
+    - name: Build Cache
+      uses: actions/cache@v3
+      with:
+        path: |
+          ~/.cargo/registry/index/
+          ~/.cargo/registry/cache/
+          ~/.cargo/git/db/
+          ~/.cargo/bin/
+          target/
+        key: |
+          ${{ inputs.key }}-${{ runner.os }}-${{ inputs.toolchain }}-${{ steps.toolchain-install.outputs.rustc_hash }}-${{ hashFiles('**/Cargo.toml', 'Cargo.lock') }}
+        restore-keys: |
+          ${{ inputs.key }}-${{ runner.os }}-${{ inputs.toolchain }}-${{ steps.toolchain-install.outputs.rustc_hash }}-
+          ${{ inputs.key }}-${{ runner.os }}-${{ inputs.toolchain }}-
