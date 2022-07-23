@@ -58,6 +58,10 @@
     path = "impl_rustix.rs"
 )]
 #[cfg_attr(target_os = "windows", path = "impl_winapi.rs")]
+#[cfg_attr(
+    all(target_arch = "wasm32", not(target_os = "wasi")),
+    path = "impl_web.rs"
+)]
 mod platform;
 
 use core::convert::{TryFrom, TryInto};
@@ -65,6 +69,12 @@ use core::fmt;
 use core::time::Duration;
 
 /// A Unix time, i.e. seconds since 1970-01-01 in UTC
+///
+/// # Notice
+///
+/// Using [`i64`] values as seconds since 1970-01-01, this library will only work until
+/// `Fri Apr 11 2262 23:47:16 GMT+0000`. If you need the library to work for later dates, please
+/// open an issue no earlier than 2162-04-11.
 #[derive(Debug, Default, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct UtcTime {
     /// Seconds since epoch

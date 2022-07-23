@@ -30,7 +30,7 @@ jobs:
     strategy:
       matrix:
         toolchain:
-          - "1.50"
+          - "1.54"
           - stable
           - nightly
 
@@ -57,7 +57,7 @@ jobs:
     strategy:
       matrix:
         toolchain:
-          - "1.50"
+          - "1.54"
           - stable
           - nightly
         platform:
@@ -85,6 +85,31 @@ jobs:
 
       - name: Run example (no-default-features)
         run: cargo run --example minimal --no-default-features
+
+  test-wasm:
+    runs-on: ubuntu-20.04
+    name: "Test WebAssembly"
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Setup Rust
+        uses: ./.github/actions/setup-rust
+        with:
+          key: wasm
+          toolchain: stable
+          target: wasm32-unknown-unknown
+
+      - name: Install Node
+        uses: actions/setup-node@v3
+        with:
+          node-version: 14
+
+      - name: Install wasm-pack
+        run: which wasm-pack || cargo install wasm-pack
+
+      - name: Run test
+        run: wasm-pack test --node
 
   minimum-versions:
     name: "Minimal versions"
