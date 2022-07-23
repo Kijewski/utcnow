@@ -42,9 +42,6 @@ rustix = { version = "0.35.7", features = ["time"] }
 [target.'cfg(target_os = "redox")'.dependencies]
 rustix = { version = "0.35.7", features = ["time"] }
 
-[target.'cfg(target_os = "wasi")'.dependencies]
-rustix = { version = "0.35.7", features = ["time"] }
-
 [target.'cfg(target_os = "windows")'.dependencies]
 winapi = { version = "0.3.9", default-features = false, features = ["sysinfoapi"] }
 

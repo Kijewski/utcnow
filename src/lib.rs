@@ -54,7 +54,6 @@
         target_os = "macos",
         target_os = "openbsd",
         target_os = "redox",
-        target_os = "wasi",
     ),
     path = "impl_rustix.rs"
 )]
@@ -182,3 +181,6 @@ impl fmt::Display for NegativeTime {
         f.write_str("cannot convert a negative UtcTime")
     }
 }
+
+#[cfg(feature = "std")]
+impl std::error::Error for NegativeTime {}
