@@ -6,6 +6,9 @@ use winapi::um::sysinfoapi::GetSystemTimePreciseAsFileTime;
 
 use crate::{Result, UtcTime};
 
+pub(crate) const IMPLEMENTED: bool = true;
+pub(crate) const INFALLIBLE: bool = true;
+
 #[inline]
 pub(crate) fn utcnow() -> Result<UtcTime> {
     let mut ft = FILETIME {

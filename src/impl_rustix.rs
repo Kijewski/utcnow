@@ -5,6 +5,9 @@ use rustix::time::{clock_gettime, ClockId};
 
 use crate::{Result, UtcTime};
 
+pub(crate) const IMPLEMENTED: bool = true;
+pub(crate) const INFALLIBLE: bool = true;
+
 #[inline]
 pub(crate) fn utcnow() -> Result<UtcTime> {
     let now = clock_gettime(ClockId::Realtime);

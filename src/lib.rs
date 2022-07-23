@@ -68,6 +68,12 @@ use core::convert::{TryFrom, TryInto};
 use core::fmt;
 use core::time::Duration;
 
+/// `true` if getting the time is implemented for the target platform
+pub const IMPLEMENTED: bool = platform::IMPLEMENTED;
+
+/// `true` if [`utcnow()`] cannot fail
+pub const INFALLIBLE: bool = platform::INFALLIBLE;
+
 /// A Unix time, i.e. seconds since 1970-01-01 in UTC
 ///
 /// # Notice
