@@ -7,7 +7,7 @@ pub(crate) const INFALLIBLE: bool = false;
 
 #[inline]
 pub(crate) fn utcnow() -> Result<UtcTime> {
-    Err(Error::OsError(OsError))
+    Err(Error(OsError))
 }
 
 #[derive(Debug, Clone, Copy)]
@@ -19,9 +19,6 @@ impl fmt::Display for OsError {
         f.write_str("platform is not implemented")
     }
 }
-
-#[cfg(feature = "std")]
-impl std::error::Error for OsError {}
 
 #[cfg(not(feature = "fallback"))]
 compile_error!(

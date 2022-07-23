@@ -26,6 +26,7 @@
 //!
 
 #![cfg_attr(not(any(test, feature = "std")), no_std)]
+#![cfg_attr(docsrs, feature(doc_cfg))]
 #![allow(unused_attributes)]
 #![warn(absolute_paths_not_starting_with_crate)]
 #![warn(elided_lifetimes_in_paths)]
@@ -42,7 +43,6 @@
 #![warn(unused_extern_crates)]
 #![warn(unused_lifetimes)]
 #![warn(unused_results)]
-#![cfg_attr(docsrs, feature(doc_cfg))]
 
 #[cfg_attr(
     any(
@@ -57,6 +57,7 @@
     ),
     path = "impl_rustix.rs"
 )]
+#[cfg_attr(target_os = "wasi", path = "impl_wasi.rs")]
 #[cfg_attr(target_os = "windows", path = "impl_winapi.rs")]
 #[cfg_attr(
     all(target_arch = "wasm32", not(target_os = "wasi")),
@@ -67,6 +68,8 @@ mod platform;
 use core::convert::{TryFrom, TryInto};
 use core::fmt;
 use core::time::Duration;
+
+use crate::platform::OsError;
 
 /// `true` if getting the time is implemented for the target platform
 pub const IMPLEMENTED: bool = platform::IMPLEMENTED;
@@ -145,10 +148,10 @@ impl TryFrom<UtcTime> for Duration {
 }
 
 #[cfg(feature = "std")]
+#[cfg_attr(docsrs, doc(cfg(feature = "std")))]
 impl TryFrom<UtcTime> for std::time::SystemTime {
     type Error = NegativeTime;
 
-    #[cfg(feature = "std")]
     fn try_from(value: UtcTime) -> Result<Self, NegativeTime> {
         std::time::SystemTime::UNIX_EPOCH
             .checked_add(value.try_into()?)
@@ -162,32 +165,27 @@ pub type Result<T, E = Error> = core::result::Result<T, E>;
 /// Could not query system time
 #[derive(Debug)]
 #[allow(missing_copy_implementations)]
-#[non_exhaustive]
-pub enum Error {
-    /// An OS specific error occurred
-    OsError(crate::platform::OsError),
-}
+pub struct Error(OsError);
 
 impl fmt::Display for Error {
     #[inline]
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        match self {
-            Self::OsError(err) => err.fmt(f),
-        }
+        self.0.fmt(f)
+    }
+}
+
+impl From<OsError> for Error {
+    #[inline]
+    fn from(err: OsError) -> Self {
+        Self(err)
     }
 }
 
 #[cfg(feature = "std")]
-impl std::error::Error for Error {
-    #[inline]
-    fn source(&self) -> Option<&(dyn std::error::Error + 'static)> {
-        match self {
-            Self::OsError(err) => err.source(),
-        }
-    }
-}
+#[cfg_attr(docsrs, doc(cfg(feature = "std")))]
+impl std::error::Error for Error {}
 
-/// Cannot convert a negative UtcTime
+/// Cannot convert a negative UtcTime, i.e. before 1970-01-01
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct NegativeTime;
 
@@ -199,4 +197,5 @@ impl fmt::Display for NegativeTime {
 }
 
 #[cfg(feature = "std")]
+#[cfg_attr(docsrs, doc(cfg(feature = "std")))]
 impl std::error::Error for NegativeTime {}

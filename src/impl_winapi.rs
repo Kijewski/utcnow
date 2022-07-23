@@ -26,18 +26,11 @@ pub(crate) fn utcnow() -> Result<UtcTime> {
 }
 
 #[derive(Debug, Clone, Copy)]
-pub enum OsError {
-    Infallible(Infallible),
-}
+pub(crate) struct OsError(Infallible);
 
 impl fmt::Display for OsError {
     #[inline]
     fn fmt(&self, _: &mut fmt::Formatter<'_>) -> fmt::Result {
-        match self {
-            OsError::Infallible(_) => Ok(()),
-        }
+        Ok(())
     }
 }
-
-#[cfg(feature = "std")]
-impl std::error::Error for OsError {}
