@@ -57,6 +57,7 @@
     ),
     path = "impl_rustix.rs"
 )]
+#[cfg_attr(target_os = "netbsd", path = "impl_libc.rs")]
 #[cfg_attr(target_os = "wasi", path = "impl_wasi.rs")]
 #[cfg_attr(target_os = "windows", path = "impl_winapi.rs")]
 #[cfg_attr(
