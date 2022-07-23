@@ -17,8 +17,8 @@ pub(crate) fn utcnow() -> Result<UtcTime> {
     // https://stackoverflow.com/a/19709740/416224
     // epoch is Jan. 1, 1601: 134774 days to Jan. 1, 1970
     Ok(UtcTime {
-        secs: ((ft / 10_000_000) as i64) - 11644473600,
-        nanos: (ft % 10_000_000) as u32 * 100,
+        secs: ft.div_euclid(10_000_000) as i64 - 11644473600,
+        nanos: ft.rem_euclid(10_000_000) as u32 * 100,
     })
 }
 
