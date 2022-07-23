@@ -20,13 +20,12 @@
 //! [![GitHub Workflow Status](https://img.shields.io/github/workflow/status/Kijewski/utcnow/CI?logo=github)](https://github.com/Kijewski/tzdb/actions/workflows/ci.yml)
 //! [![Crates.io](https://img.shields.io/crates/v/utcnow?logo=rust)](https://crates.io/crates/utcnow)
 //! ![Minimum supported Rust version](https://img.shields.io/badge/rustc-%3F%3F%3F-important?logo=rust "Minimum Supported Rust Version")
-//! [![License](https://img.shields.io/crates/l/utcnow?color=informational&logo=apache)](/LICENSES)
+//! [![License](https://img.shields.io/crates/l/utcnow?color=informational&logo=apache)](https://github.com/Kijewski/utcnow/blob/v0.0.0-pre1/LICENSE.md)
 //!
 //! Work in progress.
 //!
 
 #![cfg_attr(not(any(test, feature = "std")), no_std)]
-#![forbid(unsafe_code)]
 #![allow(unused_attributes)]
 #![warn(absolute_paths_not_starting_with_crate)]
 #![warn(elided_lifetimes_in_paths)]
@@ -59,6 +58,7 @@
     ),
     path = "impl_rustix.rs"
 )]
+#[cfg_attr(target_os = "windows", path = "impl_winapi.rs")]
 mod platform;
 
 use core::convert::{TryFrom, TryInto};
@@ -76,6 +76,7 @@ pub struct UtcTime {
 
 impl UtcTime {
     /// Total number of whole seconds since epoch (1970-01-01 in UTC)
+    #[inline]
     pub fn as_secs(self) -> i64 {
         self.secs
     }
@@ -106,6 +107,7 @@ impl UtcTime {
     }
 
     /// Fractional number of nanoseconds since epoch (1970-01-01 in UTC)
+    #[inline]
     pub fn subsec_nanos(self) -> u32 {
         self.nanos
     }
@@ -119,7 +121,6 @@ pub fn utcnow() -> Result<UtcTime> {
 impl TryFrom<UtcTime> for Duration {
     type Error = NegativeTime;
 
-    #[cfg(feature = "std")]
     fn try_from(value: UtcTime) -> Result<Self, NegativeTime> {
         Ok(Duration::new(
             value.secs.try_into().map_err(|_| NegativeTime)?,
@@ -128,13 +129,15 @@ impl TryFrom<UtcTime> for Duration {
     }
 }
 
+#[cfg(feature = "std")]
 impl TryFrom<UtcTime> for std::time::SystemTime {
     type Error = NegativeTime;
 
     #[cfg(feature = "std")]
     fn try_from(value: UtcTime) -> Result<Self, NegativeTime> {
-        let duration: Duration = value.try_into()?;
-        Ok(std::time::SystemTime::UNIX_EPOCH + duration)
+        std::time::SystemTime::UNIX_EPOCH
+            .checked_add(value.try_into()?)
+            .ok_or(NegativeTime)
     }
 }
 
@@ -151,6 +154,7 @@ pub enum Error {
 }
 
 impl fmt::Display for Error {
+    #[inline]
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
             Self::OsError(err) => err.fmt(f),
@@ -160,6 +164,7 @@ impl fmt::Display for Error {
 
 #[cfg(feature = "std")]
 impl std::error::Error for Error {
+    #[inline]
     fn source(&self) -> Option<&(dyn std::error::Error + 'static)> {
         match self {
             Self::OsError(err) => err.source(),
@@ -172,6 +177,7 @@ impl std::error::Error for Error {
 pub struct NegativeTime;
 
 impl fmt::Display for NegativeTime {
+    #[inline]
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         f.write_str("cannot convert a negative UtcTime")
     }

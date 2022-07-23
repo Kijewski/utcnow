@@ -62,7 +62,7 @@ jobs:
           - nightly
         platform:
           - ubuntu-20.04
-          # TODO: - windows-2022
+          - windows-2022
           - macos-12
 
     name: "Test/${{ matrix.toolchain }} (${{ matrix.platform }})"
@@ -82,6 +82,9 @@ jobs:
 
       - name: Run example
         run: cargo run --example minimal
+
+      - name: Run example (no-default-features)
+        run: cargo run --example minimal --no-default-features
 
   minimum-versions:
     name: "Minimal versions"
@@ -128,6 +131,9 @@ jobs:
       - name: Build library
         run: cross build --target ${{ matrix.target }} --examples
 
+      - name: Build library (no-default-features)
+        run: cross build --target ${{ matrix.target }} --examples --no-default-features
+
   cross-ios:
     strategy:
       matrix:
@@ -154,6 +160,9 @@ jobs:
 
       - name: Build library
         run: cross build --target ${{ matrix.target }} --examples
+
+      - name: Build library (no-default-features)
+        run: cross build --target ${{ matrix.target }} --examples --no-default-features
 
   doc:
     name: "Documentation"

@@ -11,7 +11,8 @@ description = "[WIP] Get the current unixtime in a no-std context"
 license = "Apache-2.0"
 
 [features]
-default = ["std"]
+default = ["std", "fallback"]
+fallback = []
 std = []
 
 [dev-dependencies]
@@ -43,6 +44,9 @@ rustix = { version = "0.35.7", features = ["time"] }
 
 [target.'cfg(target_os = "wasi")'.dependencies]
 rustix = { version = "0.35.7", features = ["time"] }
+
+[target.'cfg(target_os = "windows")'.dependencies]
+winapi = { version = "0.3.9", default-features = false, features = ["sysinfoapi"] }
 
 [package.metadata.docs.rs]
 all-features = true

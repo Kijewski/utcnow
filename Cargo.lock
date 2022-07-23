@@ -73,6 +73,7 @@ version = "0.0.0-pre1"
 dependencies = [
  "libc",
  "rustix",
+ "winapi",
 ]
 
 [[package]]

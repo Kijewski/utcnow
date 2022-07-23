@@ -21,3 +21,8 @@ impl fmt::Display for OsError {
 
 #[cfg(feature = "std")]
 impl std::error::Error for OsError {}
+
+#[cfg(not(feature = "fallback"))]
+compile_error!(
+    "Target platform is not implemented. Please file a bug report to https://github.com/Kijewski/utcnow/",
+);
