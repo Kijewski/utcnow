@@ -141,11 +141,7 @@ pub const INFALLIBLE: bool = platform::INFALLIBLE;
 
 /// A Unix time, i.e. seconds since 1970-01-01 in UTC
 ///
-/// # Notice
-///
-/// Using [`i64`] values as seconds since 1970-01-01, this library will only work until
-/// `Fri Apr 11 2262 23:47:16 GMT+0000`. If you need the library to work for later dates, please
-/// open an issue no earlier than 2162-04-11.
+/// Using [`i64`] values as seconds since 1970-01-01, this library will only work for the next 292.5 years.
 #[derive(Debug, Default, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct UtcTime {
     /// Seconds since epoch
@@ -155,6 +151,61 @@ pub struct UtcTime {
 }
 
 impl UtcTime {
+    /// Get the current time
+    ///
+    /// This method does the same as calling [`utcnow()`].
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// # use utcnow::UtcTime;
+    /// let now = UtcTime::now().unwrap();
+    /// let seconds = now.as_secs();
+    /// let nanos = now.subsec_nanos();
+    /// ```
+    #[inline]
+    pub fn now() -> Result<Self> {
+        utcnow()
+    }
+
+    /// Convert a [SystemTime]
+    ///
+    /// If the time is later than `Fri Apr 11 2262 23:47:16 GMT+0000`, `None` is returned.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// # #[cfg(feature = "std")] let _: () = {
+    /// # use std::time::SystemTime;
+    /// # use utcnow::UtcTime;
+    /// let now = UtcTime::from_system_time(SystemTime::now()).unwrap();
+    /// # };
+    /// ```
+    #[cfg(feature = "std")]
+    #[cfg_attr(docsrs, doc(cfg(feature = "std")))]
+    pub fn from_system_time(value: SystemTime) -> Option<Self> {
+        Self::from_duration(value.duration_since(SystemTime::UNIX_EPOCH).ok()?)
+    }
+
+    /// Convert a [Duration]
+    ///
+    /// The duration is interpreted as seconds since epoch (1970-01-01 in UTC).
+    /// If the resulting timestamp is later than `Fri Apr 11 2262 23:47:16 GMT+0000`, `None` is returned.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// # use core::time::Duration;
+    /// # use utcnow::UtcTime;
+    /// let timestamp = UtcTime::from_duration(Duration::from_secs(42)).unwrap();
+    /// assert_eq!(timestamp.as_nanos(), 42_000_000_000);
+    /// ```
+    pub fn from_duration(value: Duration) -> Option<Self> {
+        let secs = value.as_secs().try_into().ok()?;
+        let nanos = value.subsec_nanos();
+        Some(Self { secs, nanos })
+    }
+
     /// Total number of whole seconds since epoch (1970-01-01 in UTC)
     #[inline]
     pub fn as_secs(self) -> i64 {
@@ -194,9 +245,9 @@ impl UtcTime {
 
     /// Convert the timestamp to a [Duration] since epoch (1970-01-01 in UTC)
     #[inline]
-    pub fn into_duration(self) -> core::result::Result<Duration, NegativeTime> {
+    pub fn into_duration(self) -> core::result::Result<Duration, ConvertionError> {
         Ok(Duration::new(
-            self.secs.try_into().map_err(|_| NegativeTime)?,
+            self.secs.try_into().map_err(|_| ConvertionError)?,
             self.nanos,
         ))
     }
@@ -205,10 +256,10 @@ impl UtcTime {
     #[inline]
     #[cfg(feature = "std")]
     #[cfg_attr(docsrs, doc(cfg(feature = "std")))]
-    pub fn into_system_time(self) -> core::result::Result<SystemTime, NegativeTime> {
+    pub fn into_system_time(self) -> core::result::Result<SystemTime, ConvertionError> {
         SystemTime::UNIX_EPOCH
             .checked_add(self.try_into()?)
-            .ok_or(NegativeTime)
+            .ok_or(ConvertionError)
     }
 }
 
@@ -229,10 +280,10 @@ pub fn utcnow() -> Result<UtcTime> {
 }
 
 impl TryFrom<UtcTime> for Duration {
-    type Error = NegativeTime;
+    type Error = ConvertionError;
 
     #[inline]
-    fn try_from(value: UtcTime) -> Result<Self, NegativeTime> {
+    fn try_from(value: UtcTime) -> Result<Self, ConvertionError> {
         value.into_duration()
     }
 }
@@ -240,11 +291,31 @@ impl TryFrom<UtcTime> for Duration {
 #[cfg(feature = "std")]
 #[cfg_attr(docsrs, doc(cfg(feature = "std")))]
 impl TryFrom<UtcTime> for SystemTime {
-    type Error = NegativeTime;
+    type Error = ConvertionError;
 
     #[inline]
-    fn try_from(value: UtcTime) -> Result<Self, NegativeTime> {
+    fn try_from(value: UtcTime) -> Result<Self, ConvertionError> {
         value.into_system_time()
+    }
+}
+
+impl TryFrom<Duration> for UtcTime {
+    type Error = ConvertionError;
+
+    #[inline]
+    fn try_from(value: Duration) -> Result<Self, ConvertionError> {
+        Self::from_duration(value).ok_or(ConvertionError)
+    }
+}
+
+#[cfg(feature = "std")]
+#[cfg_attr(docsrs, doc(cfg(feature = "std")))]
+impl TryFrom<SystemTime> for UtcTime {
+    type Error = ConvertionError;
+
+    #[inline]
+    fn try_from(value: SystemTime) -> Result<Self, ConvertionError> {
+        Self::from_system_time(value).ok_or(ConvertionError)
     }
 }
 
@@ -273,13 +344,14 @@ impl From<OsError> for Error {
 #[cfg_attr(docsrs, doc(cfg(feature = "std")))]
 impl std::error::Error for Error {}
 
-/// Cannot convert a negative UtcTime, i.e. before 1970-01-01
+/// Could not convert from or to a [`UtcTime`]
 ///
-/// Unless you're a time traveler, you should never encounter this error.
+/// You cannot convert a negative [`UtcTime`]  (i.e. before 1970-01-01) into a [`SystemTime`] or [`Duration`].
+/// You cannot convert a [`SystemTime`] or [`Duration`] later than year 292 billion into a [`UtcTime`].
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
-pub struct NegativeTime;
+pub struct ConvertionError;
 
-impl fmt::Display for NegativeTime {
+impl fmt::Display for ConvertionError {
     #[inline]
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         f.write_str("cannot convert a negative UtcTime")
@@ -288,7 +360,7 @@ impl fmt::Display for NegativeTime {
 
 #[cfg(feature = "std")]
 #[cfg_attr(docsrs, doc(cfg(feature = "std")))]
-impl std::error::Error for NegativeTime {}
+impl std::error::Error for ConvertionError {}
 
 #[cfg(test)]
 #[test]
