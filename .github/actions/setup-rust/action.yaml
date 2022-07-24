@@ -15,7 +15,6 @@ inputs:
     description: Pass-through to components on actions-rs
     required: false
 
-
 runs:
   using: composite
   steps:

@@ -32,6 +32,7 @@
 //! * FreeBSD
 //! * iOS *(untested)*
 //! * Linux
+//! * Linux with Musl
 //! * MacOS
 //! * NetBSD
 //! * OpenBSD *(untested)*

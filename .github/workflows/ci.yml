@@ -77,11 +77,16 @@ jobs:
           key: test
           toolchain: ${{ matrix.toolchain }}
 
-      - name: Test
-        run: cargo test --package utcnow --all-targets -- --show-output
+      - name: Test library
+        run: cargo test --workspace -- --show-output
+
+      - name: Test library (no-default-features)
+        run: cargo test --workspace --no-default-features -- --show-output
 
       - name: Run example
-        run: cargo run --example minimal
+        run: |
+          cargo run --example minimal
+          date +%s.%9N
 
       - name: Run example (no-default-features)
         run: |
@@ -140,7 +145,12 @@ jobs:
           ~/.wasmtime/bin/wasmtime target/wasm32-wasi/debug/examples/minimal.wasm
           date +%s.%9N
 
-  emscripten:
+  test-cross:
+    strategy:
+      matrix:
+        toolchain:
+          - wasm32-unknown-emscripten
+          - x86_64-unknown-linux-musl
     runs-on: ubuntu-20.04
     name: "Test emscripten"
     steps:
@@ -151,18 +161,18 @@ jobs:
         id: actions-rs
         uses: ./.github/actions/setup-rust
         with:
-          key: emscripten
+          key: test-cross-${{ matrix.target }}
           toolchain: stable
-          target: wasm32-unknown-emscripten
+          target: ${{ matrix.target }}
 
       - name: Install cross
         run: which cross || cargo install cross
 
       - name: Test library
-        run: cross test --target wasm32-unknown-emscripten --workspace
+        run: cross test --target ${{ matrix.target }} --workspace -- --show-output
 
-      - name: Test library
-        run: cross test --target wasm32-unknown-emscripten --workspace --no-default-features
+      - name: Test library (no-default-features)
+        run: cross test --target ${{ matrix.target }} --workspace --no-default-features -- --show-output
 
   minimum-versions:
     name: "Minimal versions"
