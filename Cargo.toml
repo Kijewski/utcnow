@@ -1,13 +1,13 @@
 [package]
 name = "utcnow"
-version = "0.0.0-pre5"
+version = "0.1.0"
 edition = "2018"
 readme = "README.md"
 categories = ["date-and-time", "no-std"]
 keywords = ["time", "unixtime", "utc", "no_std", "cross-platform"]
 authors = ["René Kijewski <crates.io@k6i.de>"]
 repository = "https://github.com/Kijewski/utcnow"
-description = "[WIP] Get the current unixtime in a no-std context"
+description = "Get the current unixtime in a no-std context"
 license = "Apache-2.0"
 
 [features]

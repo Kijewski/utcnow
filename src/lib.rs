@@ -26,10 +26,12 @@
 //!
 //! In [UTC](https://en.wikipedia.org/w/index.php?title=Coordinated_Universal_Time&oldid=1099753328 "Coordinated Universal Time"), and
 //! according to the clock of the PC, tablet, toaster … the library runs on,
-//! expressed as seconds + nanoseconds since [`1970-01-01`](https://en.wikipedia.org/w/index.php?title=Unix_time&oldid=1099912565 "Unix time").
+//! expressed as seconds + nanoseconds since [`1970-01-01`](https://en.wikipedia.org/w/index.php?title=Unix_time&oldid=1099912565 "Unix time")
+//! in the [proleptic Gregorian calendar](https://en.wikipedia.org/w/index.php?title=Proleptic_Gregorian_calendar&oldid=1053300561).
 //!
 //! ```rust
-//! let now = utcnow::utcnow().unwrap();
+//! # use utcnow::utcnow;
+//! let now = utcnow().unwrap();
 //! let seconds = now.as_secs();
 //! let nanos = now.subsec_nanos();
 //! ```
@@ -38,13 +40,13 @@
 //! If this is true for the current target, then the constant [`INFALLIBLE`] will be `true`.
 //!
 //! If the target platform is not supported, then [`utcnow()`] will always return an error instead of failing to compile.
-//! Use the library with `default-features = false` and without the feature `fallback` to get a compile-time error instead.
+//! Use the library with `default-features = false` and without the feature `"fallback"` to get a compile-time error instead.
 //!
-//! The feature `std` (enabled by default) is only needed if you need the [`Error`] type to implement [`std::error::Error`].
+//! The feature `"std"` (enabled by default) is only needed if you need the [`Error`] type to implement [`std::error::Error`].
 //!
 //! ### Supported platforms
 //!
-//! If you have successfully tested one of the “*(untested)*” targets, then please [tell me](https://github.com/Kijewski/utcnow/issues).
+//! If you have successfully tested one of the untested targets, then please [tell me](https://github.com/Kijewski/utcnow/issues).
 //! And if not, then even more so!
 //!
 //! If you know how to implement another target, then please open a [pull request](https://github.com/Kijewski/utcnow/pulls).
@@ -170,8 +172,6 @@ impl UtcTime {
 
     /// Convert a [SystemTime]
     ///
-    /// If the time is later than `Fri Apr 11 2262 23:47:16 GMT+0000`, `None` is returned.
-    ///
     /// # Example
     ///
     /// ```
@@ -190,7 +190,6 @@ impl UtcTime {
     /// Convert a [Duration]
     ///
     /// The duration is interpreted as seconds since epoch (1970-01-01 in UTC).
-    /// If the resulting timestamp is later than `Fri Apr 11 2262 23:47:16 GMT+0000`, `None` is returned.
     ///
     /// # Example
     ///
@@ -208,38 +207,38 @@ impl UtcTime {
 
     /// Total number of whole seconds since epoch (1970-01-01 in UTC)
     #[inline]
-    pub fn as_secs(self) -> i64 {
+    pub const fn as_secs(self) -> i64 {
         self.secs
     }
 
     /// Total number of whole milliseconds since epoch (1970-01-01 in UTC)
-    pub fn as_millis(self) -> i128 {
+    pub const fn as_millis(self) -> i128 {
         (self.secs as i128 * 1_000) + (self.nanos as i128 / 1_000_000)
     }
 
     /// Total number of whole microseconds since epoch (1970-01-01 in UTC)
-    pub fn as_micros(self) -> i128 {
+    pub const fn as_micros(self) -> i128 {
         (self.secs as i128 * 1_000_000) + (self.nanos as i128 / 1_000)
     }
 
     /// Total number of whole nanoseconds since epoch (1970-01-01 in UTC)
-    pub fn as_nanos(self) -> i128 {
+    pub const fn as_nanos(self) -> i128 {
         (self.secs as i128 * 1_000_000_000) + (self.nanos as i128)
     }
 
     /// Fractional number of milliseconds since epoch (1970-01-01 in UTC)
-    pub fn subsec_millis(self) -> u32 {
+    pub const fn subsec_millis(self) -> u32 {
         self.nanos / 1_000_000
     }
 
     /// Fractional number of microseconds since epoch (1970-01-01 in UTC)
-    pub fn subsec_micros(self) -> u32 {
+    pub const fn subsec_micros(self) -> u32 {
         self.nanos / 1_000
     }
 
     /// Fractional number of nanoseconds since epoch (1970-01-01 in UTC)
     #[inline]
-    pub fn subsec_nanos(self) -> u32 {
+    pub const fn subsec_nanos(self) -> u32 {
         self.nanos
     }
 
@@ -323,6 +322,10 @@ impl TryFrom<SystemTime> for UtcTime {
 pub type Result<T, E = Error> = core::result::Result<T, E>;
 
 /// Could not query system time
+///
+/// For many target platforms [`utcnow()`] cannot fail.
+/// If this is true for the current target, then the constant `INFALLIBLE` will be `true`.
+/// Independent of the target platform the [`Error`] type will always be [`Send`] + [`Sync`] + [`Copy`].
 #[derive(Debug, Clone, Copy)]
 pub struct Error(OsError);
 

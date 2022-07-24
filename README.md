@@ -9,10 +9,11 @@ This library solves one question, and one question only: *What's the time?*
 
 In [UTC](https://en.wikipedia.org/w/index.php?title=Coordinated_Universal_Time&oldid=1099753328 "Coordinated Universal Time"), and
 according to the clock of the PC, tablet, toaster … the library runs on,
-expressed as seconds + nanoseconds since [`1970-01-01`](https://en.wikipedia.org/w/index.php?title=Unix_time&oldid=1099912565 "Unix time").
+expressed as seconds + nanoseconds since [`1970-01-01`](https://en.wikipedia.org/w/index.php?title=Unix_time&oldid=1099912565 "Unix time")
+in the [proleptic Gregorian calendar](https://en.wikipedia.org/w/index.php?title=Proleptic_Gregorian_calendar&oldid=1053300561).
 
 ```rust
-let now = utcnow::utcnow().unwrap();
+let now = utcnow().unwrap();
 let seconds = now.as_secs();
 let nanos = now.subsec_nanos();
 ```
