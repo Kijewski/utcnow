@@ -143,7 +143,7 @@ pub const INFALLIBLE: bool = platform::INFALLIBLE;
 
 /// A Unix time, i.e. seconds since 1970-01-01 in UTC
 ///
-/// Using [`i64`] values as seconds since 1970-01-01, this library will only work for the next 292.5 years.
+/// Using [`i64`] values as seconds since 1970-01-01, this library will work for the next 292 billion years.
 #[derive(Debug, Default, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct UtcTime {
     /// Seconds since epoch
