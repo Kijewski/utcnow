@@ -150,6 +150,34 @@ jobs:
       matrix:
         target:
           - wasm32-unknown-emscripten
+    runs-on: ubuntu-20.04
+    name: "Test ${{ matrix.target }}"
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Install Rust
+        id: actions-rs
+        uses: ./.github/actions/setup-rust
+        with:
+          key: cross-run-test
+          toolchain: stable
+          target: ${{ matrix.target }}
+
+      - name: Install cross
+        run: which cross || cargo install cross
+
+      - name: Test library
+        run: cross test --target ${{ matrix.target }} --workspace -- --show-output
+
+      - name: Test library (no-default-features)
+        run: cross test --target ${{ matrix.target }} --workspace --no-default-features -- --show-output
+
+  cross-execute:
+    strategy:
+      matrix:
+        target:
+          - i686-unknown-linux-musl
           - x86_64-unknown-linux-musl
     runs-on: ubuntu-20.04
     name: "Test ${{ matrix.target }}"
@@ -173,6 +201,16 @@ jobs:
 
       - name: Test library (no-default-features)
         run: cross test --target ${{ matrix.target }} --workspace --no-default-features -- --show-output
+
+      - name: Run example
+        run: |
+          cargo run --example minimal
+          date +%s.%9N
+
+      - name: Run example (no-default-features)
+        run: |
+          cargo run --example minimal --no-default-features
+          date +%s.%9N
 
   cross-no-execute:
     strategy:
@@ -209,8 +247,8 @@ jobs:
     strategy:
       matrix:
         target:
-          - aarch64-apple-ios-sim
           - aarch64-apple-ios
+          - aarch64-apple-ios-sim
           - x86_64-apple-darwin
           - x86_64-apple-ios
     runs-on: macos-12
@@ -241,7 +279,9 @@ jobs:
       matrix:
         target:
           - x86_64-fuchsia
+          - x86_64-pc-solaris
           - x86_64-unknown-illumos
+          - x86_64-unknown-redox
     runs-on: ubuntu-20.04
     name: "Build for ${{ matrix.target }}"
     steps:

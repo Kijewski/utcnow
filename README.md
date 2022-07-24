@@ -23,6 +23,7 @@ Work in progress.
 * NetBSD
 * OpenBSD *(untested)*
 * Redox *(untested)*
+* Solaris *(untested)*
 * WASI
 * wasm32
 * Windows

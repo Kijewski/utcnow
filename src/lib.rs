@@ -40,6 +40,7 @@
 //! * NetBSD
 //! * OpenBSD *(untested)*
 //! * Redox *(untested)*
+//! * Solaris *(untested)*
 //! * WASI
 //! * wasm32
 //! * Windows
@@ -84,6 +85,7 @@
         target_os = "fuchsia",
         target_os = "illumos",
         target_os = "netbsd",
+        target_os = "solaris",
     ),
     path = "impl_libc.rs"
 )]
