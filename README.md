@@ -9,15 +9,15 @@ Work in progress.
 
 ### Supported platforms
 
-* Dragonfly
-* Emscripten
+* Dragonfly *(untested)*
+* Emscripten *(untested)*
 * FreeBSD
-* iOS
+* iOS *(untested)*
 * Linux
 * MacOS
 * NetBSD
-* OpenBSD
-* Redox
+* OpenBSD *(untested)*
+* Redox *(untested)*
 * WASI
 * wasm32
 * Windows
