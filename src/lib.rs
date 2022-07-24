@@ -128,6 +128,8 @@ mod platform;
 use core::convert::{TryFrom, TryInto};
 use core::fmt;
 use core::time::Duration;
+#[cfg(feature = "std")]
+use std::time::SystemTime;
 
 use crate::platform::OsError;
 
@@ -189,9 +191,38 @@ impl UtcTime {
     pub fn subsec_nanos(self) -> u32 {
         self.nanos
     }
+
+    /// Convert the timestamp to a [Duration] since epoch (1970-01-01 in UTC)
+    #[inline]
+    pub fn into_duration(self) -> core::result::Result<Duration, NegativeTime> {
+        Ok(Duration::new(
+            self.secs.try_into().map_err(|_| NegativeTime)?,
+            self.nanos,
+        ))
+    }
+
+    /// Convert the timestamp to a [SystemTime]
+    #[inline]
+    #[cfg(feature = "std")]
+    #[cfg_attr(docsrs, doc(cfg(feature = "std")))]
+    pub fn into_system_time(self) -> core::result::Result<SystemTime, NegativeTime> {
+        SystemTime::UNIX_EPOCH
+            .checked_add(self.try_into()?)
+            .ok_or(NegativeTime)
+    }
 }
 
 /// Get the current unix time, seconds since 1970-01-01 in UTC
+///
+/// Please see the [module level documentation](crate) for more information.
+///
+/// # Example
+///
+/// ```rust
+/// let now = utcnow::utcnow().unwrap();
+/// let seconds = now.as_secs();
+/// let nanos = now.subsec_nanos();
+/// ```
 #[inline]
 pub fn utcnow() -> Result<UtcTime> {
     platform::utcnow()
@@ -200,23 +231,20 @@ pub fn utcnow() -> Result<UtcTime> {
 impl TryFrom<UtcTime> for Duration {
     type Error = NegativeTime;
 
+    #[inline]
     fn try_from(value: UtcTime) -> Result<Self, NegativeTime> {
-        Ok(Duration::new(
-            value.secs.try_into().map_err(|_| NegativeTime)?,
-            value.nanos,
-        ))
+        value.into_duration()
     }
 }
 
 #[cfg(feature = "std")]
 #[cfg_attr(docsrs, doc(cfg(feature = "std")))]
-impl TryFrom<UtcTime> for std::time::SystemTime {
+impl TryFrom<UtcTime> for SystemTime {
     type Error = NegativeTime;
 
+    #[inline]
     fn try_from(value: UtcTime) -> Result<Self, NegativeTime> {
-        std::time::SystemTime::UNIX_EPOCH
-            .checked_add(value.try_into()?)
-            .ok_or(NegativeTime)
+        value.into_system_time()
     }
 }
 
