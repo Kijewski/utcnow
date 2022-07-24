@@ -26,8 +26,9 @@
 //!
 //! ### Supported platforms
 //!
+//! * Darwin *(untested)*
 //! * Dragonfly *(untested)*
-//! * Emscripten *(untested)*
+//! * Emscripten
 //! * FreeBSD
 //! * iOS *(untested)*
 //! * Linux
@@ -62,7 +63,6 @@
 #[cfg_attr(
     any(
         target_os = "dragonfly",
-        target_os = "emscripten",
         target_os = "freebsd",
         target_os = "ios",
         target_os = "linux",
@@ -72,7 +72,10 @@
     ),
     path = "impl_rustix.rs"
 )]
-#[cfg_attr(any(target_os = "darwin", target_os = "netbsd"), path = "impl_libc.rs")]
+#[cfg_attr(
+    any(target_os = "darwin", target_os = "netbsd", target_os = "emscripten"),
+    path = "impl_libc.rs"
+)]
 #[cfg_attr(target_os = "wasi", path = "impl_wasi.rs")]
 #[cfg_attr(target_os = "windows", path = "impl_winapi.rs")]
 #[cfg_attr(
@@ -216,3 +219,9 @@ impl fmt::Display for NegativeTime {
 #[cfg(feature = "std")]
 #[cfg_attr(docsrs, doc(cfg(feature = "std")))]
 impl std::error::Error for NegativeTime {}
+
+#[cfg(test)]
+#[test]
+fn test_if_can_call() {
+    let _ = utcnow().unwrap();
+}

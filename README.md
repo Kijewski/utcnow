@@ -9,8 +9,9 @@ Work in progress.
 
 ### Supported platforms
 
+* Darwin *(untested)*
 * Dragonfly *(untested)*
-* Emscripten *(untested)*
+* Emscripten
 * FreeBSD
 * iOS *(untested)*
 * Linux

@@ -10,17 +10,18 @@ pub(crate) const IMPLEMENTED: bool = true;
 pub(crate) const INFALLIBLE: bool = true;
 
 pub(crate) fn utcnow() -> Result<UtcTime> {
-    let mut ft = FILETIME {
+    let mut now = FILETIME {
         dwLowDateTime: 0,
         dwHighDateTime: 0,
     };
-    unsafe { GetSystemTimePreciseAsFileTime(&mut ft) };
-    let ft = (ft.dwHighDateTime as u64 * 0x1_0000_0000) + ft.dwLowDateTime as u64;
+    unsafe { GetSystemTimePreciseAsFileTime(&mut now) };
+    let now = (now.dwHighDateTime as u64 * 0x1_0000_0000) + now.dwLowDateTime as u64;
+
     // https://stackoverflow.com/a/19709740/416224
     // epoch is Jan. 1, 1601: 134774 days to Jan. 1, 1970
     Ok(UtcTime {
-        secs: ft.div_euclid(10_000_000) as i64 - 11644473600,
-        nanos: ft.rem_euclid(10_000_000) as u32 * 100,
+        secs: now.div_euclid(10_000_000) as i64 - 11644473600,
+        nanos: now.rem_euclid(10_000_000) as u32 * 100,
     })
 }
 

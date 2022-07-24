@@ -140,6 +140,30 @@ jobs:
           ~/.wasmtime/bin/wasmtime target/wasm32-wasi/debug/examples/minimal.wasm
           date +%s.%9N
 
+  emscripten:
+    runs-on: ubuntu-20.04
+    name: "Test emscripten"
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Install Rust
+        id: actions-rs
+        uses: ./.github/actions/setup-rust
+        with:
+          key: emscripten
+          toolchain: stable
+          target: wasm32-unknown-emscripten
+
+      - name: Install cross
+        run: which cross || cargo install cross
+
+      - name: Test library
+        run: cross test --target wasm32-unknown-emscripten --workspace
+
+      - name: Test library
+        run: cross test --target wasm32-unknown-emscripten --workspace --no-default-features
+
   minimum-versions:
     name: "Minimal versions"
     runs-on: ubuntu-20.04

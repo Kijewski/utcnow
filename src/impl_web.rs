@@ -7,10 +7,10 @@ pub(crate) const IMPLEMENTED: bool = true;
 pub(crate) const INFALLIBLE: bool = true;
 
 pub(crate) fn utcnow() -> Result<UtcTime> {
-    let ms = js_sys::Date::now();
+    let millis = js_sys::Date::now();
     Ok(UtcTime {
-        secs: ms.div_euclid(1000_f64) as i64,
-        nanos: ms.rem_euclid(1000_f64) as u32 * 1_000_000,
+        secs: millis.div_euclid(1000_f64) as i64,
+        nanos: millis.rem_euclid(1000_f64) as u32 * 1_000_000,
     })
 }
 

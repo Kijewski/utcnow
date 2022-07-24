@@ -8,12 +8,12 @@ use crate::{Result, UtcTime};
 pub(crate) const IMPLEMENTED: bool = true;
 pub(crate) const INFALLIBLE: bool = true;
 
+#[allow(trivial_casts)]
 pub(crate) fn utcnow() -> Result<UtcTime> {
     let now = clock_gettime(ClockId::Realtime);
-    Ok(UtcTime {
-        secs: now.tv_sec,
-        nanos: now.tv_nsec as u32,
-    })
+    let secs = now.tv_sec as i64; // tv_sec is i32 is emscripten
+    let nanos = now.tv_nsec as u32;
+    Ok(UtcTime { secs, nanos })
 }
 
 #[derive(Debug, Clone, Copy)]
