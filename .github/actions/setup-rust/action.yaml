@@ -26,7 +26,6 @@ runs:
           ~/.rustup/toolchains
           ~/.rustup/update-hashes
         key: rustup-${{ runner.os }}-${{ inputs.target }}
-        restore-keys: rustup-${{ runner.os }}-
 
     - name: Install Toolchain
       uses: actions-rs/toolchain@v1
@@ -48,7 +47,7 @@ runs:
           ~/.cargo/bin/
           target/
         key: |
-          ${{ inputs.key }}-${{ runner.os }}-${{ inputs.toolchain }}-${{ steps.toolchain-install.outputs.rustc_hash }}-${{ hashFiles('**/Cargo.toml', 'Cargo.lock') }}
+          ${{ inputs.key }}-${{ runner.os }}-${{ inputs.target }}-${{ inputs.toolchain }}-${{ steps.toolchain-install.outputs.rustc_hash }}-${{ hashFiles('**/Cargo.toml', 'Cargo.lock') }}
         restore-keys: |
-          ${{ inputs.key }}-${{ runner.os }}-${{ inputs.toolchain }}-${{ steps.toolchain-install.outputs.rustc_hash }}-
-          ${{ inputs.key }}-${{ runner.os }}-${{ inputs.toolchain }}-
+          ${{ inputs.key }}-${{ runner.os }}-${{ inputs.target }}-${{ inputs.toolchain }}-${{ steps.toolchain-install.outputs.rustc_hash }}-
+          ${{ inputs.key }}-${{ runner.os }}-${{ inputs.target }}-${{ inputs.toolchain }}-

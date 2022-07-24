@@ -30,6 +30,7 @@
 //! * Dragonfly *(untested)*
 //! * Emscripten
 //! * FreeBSD
+//! * Illumos *(untested)*
 //! * iOS *(untested)*
 //! * Linux
 //! * Linux with Musl
@@ -74,7 +75,12 @@
     path = "impl_rustix.rs"
 )]
 #[cfg_attr(
-    any(target_os = "darwin", target_os = "netbsd", target_os = "emscripten"),
+    any(
+        target_os = "darwin",
+        target_os = "emscripten",
+        target_os = "illumos",
+        target_os = "netbsd",
+    ),
     path = "impl_libc.rs"
 )]
 #[cfg_attr(target_os = "wasi", path = "impl_wasi.rs")]

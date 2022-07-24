@@ -18,7 +18,7 @@ std = []
 [target.'cfg(any(target_os = "dragonfly", target_os = "freebsd", target_os = "ios", target_os = "linux", target_os = "macos", target_os = "openbsd", target_os = "redox"))'.dependencies]
 rustix = { version = "0.35.7", features = ["time"] }
 
-[target.'cfg(any(target_os = "darwin", target_os = "emscripten", target_os = "netbsd"))'.dependencies]
+[target.'cfg(any(target_os = "darwin", target_os = "emscripten", target_os = "illumos", target_os = "netbsd"))'.dependencies]
 errno = { version = "0.2.8", default-features = false }
 libc = { version = "0.2.126", default-features = false }
 

@@ -13,6 +13,7 @@ Work in progress.
 * Dragonfly *(untested)*
 * Emscripten
 * FreeBSD
+* Illumos *(untested)*
 * iOS *(untested)*
 * Linux
 * Linux with Musl

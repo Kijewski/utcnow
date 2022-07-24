@@ -145,10 +145,10 @@ jobs:
           ~/.wasmtime/bin/wasmtime target/wasm32-wasi/debug/examples/minimal.wasm
           date +%s.%9N
 
-  test-cross:
+  cross-run-test:
     strategy:
       matrix:
-        toolchain:
+        target:
           - wasm32-unknown-emscripten
           - x86_64-unknown-linux-musl
     runs-on: ubuntu-20.04
@@ -161,7 +161,7 @@ jobs:
         id: actions-rs
         uses: ./.github/actions/setup-rust
         with:
-          key: test-cross-${{ matrix.target }}
+          key: cross-run-test
           toolchain: stable
           target: ${{ matrix.target }}
 
@@ -174,26 +174,7 @@ jobs:
       - name: Test library (no-default-features)
         run: cross test --target ${{ matrix.target }} --workspace --no-default-features -- --show-output
 
-  minimum-versions:
-    name: "Minimal versions"
-    runs-on: ubuntu-20.04
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-
-      - name: Setup Rust
-        uses: ./.github/actions/setup-rust
-        with:
-          key: minimum-versions
-          toolchain: nightly
-
-      - name: Update lockfile
-        run: cargo generate-lockfile -Zminimal-versions
-
-      - name: Test
-        run: cargo test --all-targets -- --show-output
-
-  cross-ubuntu:
+  cross-no-execute:
     strategy:
       matrix:
         target:
@@ -209,7 +190,7 @@ jobs:
         id: actions-rs
         uses: ./.github/actions/setup-rust
         with:
-          key: cross-ubuntu
+          key: cross-no-execute
           toolchain: stable
           target: ${{ matrix.target }}
 
@@ -252,6 +233,53 @@ jobs:
 
       - name: Build library (no-default-features)
         run: cross build --target ${{ matrix.target }} --examples --no-default-features
+
+  cross-build-lib-only:
+    strategy:
+      matrix:
+        target:
+          - x86_64-unknown-illumos
+    runs-on: ubuntu-20.04
+    name: "Build for ${{ matrix.target }}"
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Install Rust
+        id: actions-rs
+        uses: ./.github/actions/setup-rust
+        with:
+          key: cross-build-lib-only
+          toolchain: stable
+          target: ${{ matrix.target }}
+
+      - name: Install cross
+        run: which cross || cargo install cross
+
+      - name: Build library
+        run: cross build --target ${{ matrix.target }} --workspace
+
+      - name: Build library (no-default-features)
+        run: cross build --target ${{ matrix.target }} --workspace --no-default-features
+
+  minimum-versions:
+    name: "Minimal versions"
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Setup Rust
+        uses: ./.github/actions/setup-rust
+        with:
+          key: minimum-versions
+          toolchain: nightly
+
+      - name: Update lockfile
+        run: cargo generate-lockfile -Zminimal-versions
+
+      - name: Test
+        run: cargo test --all-targets -- --show-output
 
   doc:
     name: "Documentation"
