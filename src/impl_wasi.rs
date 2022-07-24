@@ -7,7 +7,6 @@ use crate::{Result, UtcTime};
 pub(crate) const IMPLEMENTED: bool = true;
 pub(crate) const INFALLIBLE: bool = false;
 
-#[inline]
 pub(crate) fn utcnow() -> Result<UtcTime> {
     let ts = unsafe { clock_time_get(CLOCKID_REALTIME, 100) }.map_err(OsError)?;
     Ok(UtcTime {

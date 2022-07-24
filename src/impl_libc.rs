@@ -9,7 +9,6 @@ use crate::{Error, Result, UtcTime};
 pub(crate) const IMPLEMENTED: bool = true;
 pub(crate) const INFALLIBLE: bool = false;
 
-#[inline]
 pub(crate) fn utcnow() -> Result<UtcTime> {
     let mut ts = timespec {
         tv_sec: 0,
@@ -30,7 +29,6 @@ pub(crate) fn utcnow() -> Result<UtcTime> {
 pub(crate) struct OsError(i32);
 
 impl fmt::Display for OsError {
-    #[inline]
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let msg = unsafe { strerror(self.0) };
         let msg = match msg.is_null() {

@@ -72,7 +72,7 @@
     ),
     path = "impl_rustix.rs"
 )]
-#[cfg_attr(target_os = "netbsd", path = "impl_libc.rs")]
+#[cfg_attr(any(target_os = "darwin", target_os = "netbsd"), path = "impl_libc.rs")]
 #[cfg_attr(target_os = "wasi", path = "impl_wasi.rs")]
 #[cfg_attr(target_os = "windows", path = "impl_winapi.rs")]
 #[cfg_attr(
@@ -148,6 +148,7 @@ impl UtcTime {
 }
 
 /// Get the current unix time, seconds since 1970-01-01 in UTC
+#[inline]
 pub fn utcnow() -> Result<UtcTime> {
     platform::utcnow()
 }
