@@ -9,6 +9,7 @@ Work in progress.
 
 ### Supported platforms
 
+* Android *(untested)*
 * Darwin *(untested)*
 * Dragonfly *(untested)*
 * Emscripten

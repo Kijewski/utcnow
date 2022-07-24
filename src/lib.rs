@@ -26,6 +26,7 @@
 //!
 //! ### Supported platforms
 //!
+//! * Android *(untested)*
 //! * Darwin *(untested)*
 //! * Dragonfly *(untested)*
 //! * Emscripten
@@ -76,6 +77,7 @@
 )]
 #[cfg_attr(
     any(
+        target_os = "android",
         target_os = "darwin",
         target_os = "emscripten",
         target_os = "illumos",

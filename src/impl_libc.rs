@@ -28,6 +28,7 @@ pub(crate) fn utcnow() -> Result<UtcTime> {
 #[derive(Debug, Clone, Copy)]
 pub(crate) struct OsError(#[cfg(not(target_os = "emscripten"))] i32);
 
+#[allow(trivial_casts)] // msg is already `*mut u8` on thumbv7neon-linux-androideabi
 impl fmt::Display for OsError {
     #[cfg(not(target_os = "emscripten"))]
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
