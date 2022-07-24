@@ -30,7 +30,7 @@ jobs:
     strategy:
       matrix:
         toolchain:
-          - "1.54"
+          - "1.48"
           - stable
           - nightly
 
@@ -57,7 +57,7 @@ jobs:
     strategy:
       matrix:
         toolchain:
-          - "1.54"
+          - "1.48"
           - stable
           - nightly
         platform:
@@ -167,6 +167,9 @@ jobs:
       - name: Install cross
         run: which cross || cargo install cross
 
+      - name: Lint
+        run: cross clippy --target ${{ matrix.target }} --workspace -- -D warnings
+
       - name: Test library
         run: cross test --target ${{ matrix.target }} --workspace -- --show-output
 
@@ -195,6 +198,9 @@ jobs:
 
       - name: Install cross
         run: which cross || cargo install cross
+
+      - name: Lint
+        run: cross clippy --target ${{ matrix.target }} --workspace -- -D warnings
 
       - name: Test library
         run: cross test --target ${{ matrix.target }} --workspace -- --show-output
@@ -237,6 +243,9 @@ jobs:
       - name: Install cross
         run: which cross || cargo install cross
 
+      - name: Lint
+        run: cross clippy --target ${{ matrix.target }} --workspace -- -D warnings
+
       - name: Build library
         run: cross build --target ${{ matrix.target }} --examples
 
@@ -268,6 +277,9 @@ jobs:
       - name: Install cross
         run: which cross || cargo install cross
 
+      - name: Lint
+        run: cross clippy --target ${{ matrix.target }} --workspace -- -D warnings
+
       - name: Build library
         run: cross build --target ${{ matrix.target }} --examples
 
@@ -298,6 +310,9 @@ jobs:
 
       - name: Install cross
         run: which cross || cargo install cross
+
+      - name: Lint
+        run: cross clippy --target ${{ matrix.target }} --workspace -- -D warnings
 
       - name: Build library
         run: cross build --target ${{ matrix.target }} --workspace
