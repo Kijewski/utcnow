@@ -1,6 +1,6 @@
 [package]
 name = "utcnow"
-version = "0.0.0-pre3"
+version = "0.0.0-pre4"
 edition = "2018"
 readme = "README.md"
 categories = ["date-and-time", "no-std"]

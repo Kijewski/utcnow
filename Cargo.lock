@@ -156,7 +156,7 @@ checksum = "15c61ba63f9235225a22310255a29b806b907c9b8c964bcbd0a2c70f3f2deea7"
 
 [[package]]
 name = "utcnow"
-version = "0.0.0-pre3"
+version = "0.0.0-pre4"
 dependencies = [
  "errno",
  "js-sys",

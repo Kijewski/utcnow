@@ -24,6 +24,21 @@
 //!
 //! Work in progress.
 //!
+//! ### Supported platforms
+//!
+//! * Dragonfly
+//! * Emscripten
+//! * FreeBSD
+//! * iOS
+//! * Linux
+//! * MacOS
+//! * NetBSD
+//! * OpenBSD
+//! * Redox
+//! * WASI
+//! * wasm32
+//! * Windows
+//!
 
 #![cfg_attr(not(any(test, feature = "std")), no_std)]
 #![cfg_attr(docsrs, feature(doc_cfg))]

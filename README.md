@@ -6,3 +6,18 @@
 [![License](https://img.shields.io/crates/l/utcnow?color=informational&logo=apache)](/LICENSE.md)
 
 Work in progress.
+
+### Supported platforms
+
+* Dragonfly
+* Emscripten
+* FreeBSD
+* iOS
+* Linux
+* MacOS
+* NetBSD
+* OpenBSD
+* Redox
+* WASI
+* wasm32
+* Windows
