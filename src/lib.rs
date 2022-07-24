@@ -31,6 +31,7 @@
 //! * Dragonfly *(untested)*
 //! * Emscripten
 //! * FreeBSD
+//! * Fuchsia *(untested)*
 //! * Illumos *(untested)*
 //! * iOS *(untested)*
 //! * Linux
@@ -80,6 +81,7 @@
         target_os = "android",
         target_os = "darwin",
         target_os = "emscripten",
+        target_os = "fuchsia",
         target_os = "illumos",
         target_os = "netbsd",
     ),

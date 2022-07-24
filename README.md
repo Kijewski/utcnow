@@ -14,6 +14,7 @@ Work in progress.
 * Dragonfly *(untested)*
 * Emscripten
 * FreeBSD
+* Fuchsia *(untested)*
 * Illumos *(untested)*
 * iOS *(untested)*
 * Linux
