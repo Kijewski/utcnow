@@ -178,7 +178,8 @@ impl UtcTime {
     /// # #[cfg(feature = "std")] let _: () = {
     /// # use std::time::SystemTime;
     /// # use utcnow::UtcTime;
-    /// let now = UtcTime::from_system_time(SystemTime::now()).unwrap();
+    /// let system_time = SystemTime::now();
+    /// let now = UtcTime::from_system_time(system_time).unwrap();
     /// # };
     /// ```
     #[cfg(feature = "std")]
@@ -196,7 +197,8 @@ impl UtcTime {
     /// ```
     /// # use core::time::Duration;
     /// # use utcnow::UtcTime;
-    /// let timestamp = UtcTime::from_duration(Duration::from_secs(42)).unwrap();
+    /// let duration = Duration::from_secs(42);
+    /// let timestamp = UtcTime::from_duration(duration).unwrap();
     /// assert_eq!(timestamp.as_nanos(), 42_000_000_000);
     /// ```
     pub fn from_duration(value: Duration) -> Option<Self> {
@@ -206,43 +208,126 @@ impl UtcTime {
     }
 
     /// Total number of whole seconds since epoch (1970-01-01 in UTC)
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// # use core::time::Duration;
+    /// # use utcnow::UtcTime;
+    /// let now = UtcTime::now().unwrap();
+    /// let total_secs = now.as_secs();
+    /// assert!(total_secs > 1_658_711_810);
+    /// assert!(total_secs < 1_974_324_043); // update before 2032-07-25
+    /// ```
     #[inline]
     pub const fn as_secs(self) -> i64 {
         self.secs
     }
 
     /// Total number of whole milliseconds since epoch (1970-01-01 in UTC)
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// # use core::time::Duration;
+    /// # use utcnow::UtcTime;
+    /// let now = UtcTime::now().unwrap();
+    /// let total_millis = now.as_millis();
+    /// assert!(total_millis > 1_658_711_810_802);
+    /// assert!(total_millis < 1_974_324_043_000); // update before 2032-07-25
+    /// ```
     pub const fn as_millis(self) -> i128 {
         (self.secs as i128 * 1_000) + (self.nanos as i128 / 1_000_000)
     }
 
     /// Total number of whole microseconds since epoch (1970-01-01 in UTC)
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// # use core::time::Duration;
+    /// # use utcnow::UtcTime;
+    /// let now = UtcTime::now().unwrap();
+    /// let total_micros = now.as_micros();
+    /// assert!(total_micros > 1_658_711_810_802_520);
+    /// assert!(total_micros < 1_974_324_043_000_000); // update before 2032-07-25
+    /// ```
     pub const fn as_micros(self) -> i128 {
         (self.secs as i128 * 1_000_000) + (self.nanos as i128 / 1_000)
     }
 
     /// Total number of whole nanoseconds since epoch (1970-01-01 in UTC)
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// # use core::time::Duration;
+    /// # use utcnow::UtcTime;
+    /// let now = UtcTime::now().unwrap();
+    /// let total_nanos = now.as_nanos();
+    /// assert!(total_nanos > 1_658_711_810_802_520_027);
+    /// assert!(total_nanos < 1_974_324_043_000_000_000); // update before 2032-07-25
+    /// ```
     pub const fn as_nanos(self) -> i128 {
         (self.secs as i128 * 1_000_000_000) + (self.nanos as i128)
     }
 
     /// Fractional number of milliseconds since epoch (1970-01-01 in UTC)
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// # use core::time::Duration;
+    /// # use utcnow::UtcTime;
+    /// let now = UtcTime::now().unwrap();
+    /// let millis = now.subsec_millis();
+    /// assert!(millis < 1_000);
+    /// ```
     pub const fn subsec_millis(self) -> u32 {
         self.nanos / 1_000_000
     }
 
     /// Fractional number of microseconds since epoch (1970-01-01 in UTC)
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// # use core::time::Duration;
+    /// # use utcnow::UtcTime;
+    /// let now = UtcTime::now().unwrap();
+    /// let micros = now.subsec_micros();
+    /// assert!(micros < 1_000_000);
+    /// ```
     pub const fn subsec_micros(self) -> u32 {
         self.nanos / 1_000
     }
 
     /// Fractional number of nanoseconds since epoch (1970-01-01 in UTC)
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// # use core::time::Duration;
+    /// # use utcnow::UtcTime;
+    /// let now = UtcTime::now().unwrap();
+    /// let nanos = now.subsec_nanos();
+    /// assert!(nanos < 1_000_000_000);
+    /// ```
     #[inline]
     pub const fn subsec_nanos(self) -> u32 {
         self.nanos
     }
 
     /// Convert the timestamp to a [Duration] since epoch (1970-01-01 in UTC)
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// # use core::time::Duration;
+    /// # use utcnow::UtcTime;
+    /// let now = UtcTime::now().unwrap();
+    /// let duration = now.into_duration().unwrap();
+    /// ```
     #[inline]
     pub fn into_duration(self) -> core::result::Result<Duration, ConvertionError> {
         Ok(Duration::new(
@@ -252,6 +337,17 @@ impl UtcTime {
     }
 
     /// Convert the timestamp to a [SystemTime]
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// # #[cfg(feature = "std")] let _: () = {
+    /// # use std::time::SystemTime;
+    /// # use utcnow::UtcTime;
+    /// let now = UtcTime::now().unwrap();
+    /// let system_time = now.into_system_time().unwrap();
+    /// # };
+    /// ```
     #[inline]
     #[cfg(feature = "std")]
     #[cfg_attr(docsrs, doc(cfg(feature = "std")))]
@@ -319,6 +415,10 @@ impl TryFrom<SystemTime> for UtcTime {
 }
 
 /// A result type that default to [`Error`] as error type
+///
+/// For many target platforms [`utcnow()`] cannot fail.
+/// If this is true for the current target, then the constant `INFALLIBLE` will be `true`.
+/// Rust will automatically optimize the call [`unwrap()`](Result::unwrap) call into a no-op in this case.
 pub type Result<T, E = Error> = core::result::Result<T, E>;
 
 /// Could not query system time
