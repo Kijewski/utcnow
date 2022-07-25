@@ -329,9 +329,9 @@ impl UtcTime {
     /// let duration = now.into_duration().unwrap();
     /// ```
     #[inline]
-    pub fn into_duration(self) -> core::result::Result<Duration, ConvertionError> {
+    pub fn into_duration(self) -> core::result::Result<Duration, ConversionError> {
         Ok(Duration::new(
-            self.secs.try_into().map_err(|_| ConvertionError)?,
+            self.secs.try_into().map_err(|_| ConversionError)?,
             self.nanos,
         ))
     }
@@ -351,10 +351,10 @@ impl UtcTime {
     #[inline]
     #[cfg(feature = "std")]
     #[cfg_attr(docsrs, doc(cfg(feature = "std")))]
-    pub fn into_system_time(self) -> core::result::Result<SystemTime, ConvertionError> {
+    pub fn into_system_time(self) -> core::result::Result<SystemTime, ConversionError> {
         SystemTime::UNIX_EPOCH
             .checked_add(self.try_into()?)
-            .ok_or(ConvertionError)
+            .ok_or(ConversionError)
     }
 }
 
@@ -375,10 +375,10 @@ pub fn utcnow() -> Result<UtcTime> {
 }
 
 impl TryFrom<UtcTime> for Duration {
-    type Error = ConvertionError;
+    type Error = ConversionError;
 
     #[inline]
-    fn try_from(value: UtcTime) -> Result<Self, ConvertionError> {
+    fn try_from(value: UtcTime) -> Result<Self, ConversionError> {
         value.into_duration()
     }
 }
@@ -386,31 +386,31 @@ impl TryFrom<UtcTime> for Duration {
 #[cfg(feature = "std")]
 #[cfg_attr(docsrs, doc(cfg(feature = "std")))]
 impl TryFrom<UtcTime> for SystemTime {
-    type Error = ConvertionError;
+    type Error = ConversionError;
 
     #[inline]
-    fn try_from(value: UtcTime) -> Result<Self, ConvertionError> {
+    fn try_from(value: UtcTime) -> Result<Self, ConversionError> {
         value.into_system_time()
     }
 }
 
 impl TryFrom<Duration> for UtcTime {
-    type Error = ConvertionError;
+    type Error = ConversionError;
 
     #[inline]
-    fn try_from(value: Duration) -> Result<Self, ConvertionError> {
-        Self::from_duration(value).ok_or(ConvertionError)
+    fn try_from(value: Duration) -> Result<Self, ConversionError> {
+        Self::from_duration(value).ok_or(ConversionError)
     }
 }
 
 #[cfg(feature = "std")]
 #[cfg_attr(docsrs, doc(cfg(feature = "std")))]
 impl TryFrom<SystemTime> for UtcTime {
-    type Error = ConvertionError;
+    type Error = ConversionError;
 
     #[inline]
-    fn try_from(value: SystemTime) -> Result<Self, ConvertionError> {
-        Self::from_system_time(value).ok_or(ConvertionError)
+    fn try_from(value: SystemTime) -> Result<Self, ConversionError> {
+        Self::from_system_time(value).ok_or(ConversionError)
     }
 }
 
@@ -452,9 +452,9 @@ impl std::error::Error for Error {}
 /// You cannot convert a negative [`UtcTime`]  (i.e. before 1970-01-01) into a [`SystemTime`] or [`Duration`].
 /// You cannot convert a [`SystemTime`] or [`Duration`] later than year 292 billion into a [`UtcTime`].
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
-pub struct ConvertionError;
+pub struct ConversionError;
 
-impl fmt::Display for ConvertionError {
+impl fmt::Display for ConversionError {
     #[inline]
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         f.write_str("cannot convert a negative UtcTime")
@@ -463,7 +463,7 @@ impl fmt::Display for ConvertionError {
 
 #[cfg(feature = "std")]
 #[cfg_attr(docsrs, doc(cfg(feature = "std")))]
-impl std::error::Error for ConvertionError {}
+impl std::error::Error for ConversionError {}
 
 #[cfg(test)]
 #[test]
