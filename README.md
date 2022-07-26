@@ -37,6 +37,7 @@ If you know how to implement another target, then please open a [pull request](h
 
 * Emscripten
 * FreeBSD
+* Illumos
 * Linux
 * Linux with Musl
 * MacOS
@@ -51,7 +52,6 @@ If you know how to implement another target, then please open a [pull request](h
 * Darwin
 * Dragonfly
 * Fuchsia
-* Illumos
 * iOS
 * OpenBSD
 * Redox

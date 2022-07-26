@@ -55,6 +55,7 @@
 //!
 //! * Emscripten
 //! * FreeBSD
+//! * Illumos
 //! * Linux
 //! * Linux with Musl
 //! * MacOS
@@ -69,7 +70,6 @@
 //! * Darwin
 //! * Dragonfly
 //! * Fuchsia
-//! * Illumos
 //! * iOS
 //! * OpenBSD
 //! * Redox
