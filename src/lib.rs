@@ -332,12 +332,13 @@ impl UtcTime {
     /// let now = UtcTime::now().unwrap();
     /// let duration = now.into_duration().unwrap();
     /// ```
-    #[inline]
+    #[const_fn::const_fn("1.58")]
     pub fn into_duration(self) -> core::result::Result<Duration, ConversionError> {
-        Ok(Duration::new(
-            self.secs.try_into().map_err(|_| ConversionError)?,
-            self.nanos,
-        ))
+        let secs = match self.secs {
+            secs @ 0..=i64::MAX => secs as u64,
+            _ => return Err(ConversionError),
+        };
+        Ok(Duration::new(secs, self.nanos))
     }
 
     /// Convert the timestamp to a [SystemTime]
