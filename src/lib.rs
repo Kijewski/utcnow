@@ -201,8 +201,12 @@ impl UtcTime {
     /// let timestamp = UtcTime::from_duration(duration).unwrap();
     /// assert_eq!(timestamp.as_nanos(), 42_000_000_000);
     /// ```
-    pub fn from_duration(value: Duration) -> Option<Self> {
-        let secs = value.as_secs().try_into().ok()?;
+    pub const fn from_duration(value: Duration) -> Option<Self> {
+        const I64_MAX: u64 = i64::MAX as u64;
+        let secs = match value.as_secs() {
+            secs @ 0..=I64_MAX => secs as i64,
+            _ => return None,
+        };
         let nanos = value.subsec_nanos();
         Some(Self { secs, nanos })
     }
