@@ -7,6 +7,8 @@ use crate::{Result, UtcTime};
 pub(crate) const IMPLEMENTED: bool = true;
 pub(crate) const INFALLIBLE: bool = false;
 
+#[allow(clippy::cast_possible_truncation)]
+#[allow(clippy::cast_possible_wrap)]
 pub(crate) fn utcnow() -> Result<UtcTime> {
     let nanos = unsafe { clock_time_get(CLOCKID_REALTIME, 100) }.map_err(OsError)?;
     Ok(UtcTime {

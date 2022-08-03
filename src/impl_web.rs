@@ -6,6 +6,9 @@ use crate::{Result, UtcTime};
 pub(crate) const IMPLEMENTED: bool = true;
 pub(crate) const INFALLIBLE: bool = true;
 
+#[allow(clippy::cast_possible_truncation)]
+#[allow(clippy::cast_sign_loss)]
+#[allow(clippy::unnecessary_wraps)]
 pub(crate) fn utcnow() -> Result<UtcTime> {
     let millis = js_sys::Date::now();
     Ok(UtcTime {
@@ -26,11 +29,9 @@ impl fmt::Display for OsError {
 
 #[cfg(test)]
 mod tests {
-    use wasm_bindgen_test::*;
-
-    #[wasm_bindgen_test]
+    #[wasm_bindgen_test::wasm_bindgen_test]
     fn pass() {
         let now = crate::utcnow().unwrap();
-        console_log!("now={:?}", now);
+        wasm_bindgen_test::console_log!("now={:?}", now);
     }
 }

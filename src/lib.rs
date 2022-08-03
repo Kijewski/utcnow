@@ -15,6 +15,9 @@
 // limitations under the License.
 //
 
+#![allow(unknown_lints)]
+#![allow(clippy::doc_markdown)]
+
 //! # utcnow — Get the current unixtime in a no-std context
 //!
 //! [![GitHub Workflow Status](https://img.shields.io/github/workflow/status/Kijewski/utcnow/CI?logo=github)](https://github.com/Kijewski/tzdb/actions/workflows/ci.yml)
@@ -26,8 +29,7 @@
 //!
 //! In [UTC](https://en.wikipedia.org/w/index.php?title=Coordinated_Universal_Time&oldid=1099753328 "Coordinated Universal Time"), and
 //! according to the clock of the PC, tablet, toaster … the library runs on,
-//! expressed as seconds + nanoseconds since [`1970-01-01`](https://en.wikipedia.org/w/index.php?title=Unix_time&oldid=1099912565 "Unix time")
-//! in the [proleptic Gregorian calendar](https://en.wikipedia.org/w/index.php?title=Proleptic_Gregorian_calendar&oldid=1053300561).
+//! expressed as seconds + nanoseconds since [`1970-01-01`](https://en.wikipedia.org/w/index.php?title=Unix_time&oldid=1099912565 "Unix time").
 //!
 //! ```rust
 //! # use utcnow::utcnow;
@@ -127,7 +129,7 @@
 )]
 mod platform;
 
-use core::convert::{TryFrom, TryInto};
+use core::convert::TryFrom;
 use core::fmt;
 use core::time::Duration;
 #[cfg(feature = "std")]
@@ -157,6 +159,10 @@ impl UtcTime {
     ///
     /// This method does the same as calling [`utcnow()`].
     ///
+    /// # Errors
+    ///
+    /// See [`utcnow()`] for further information.
+    ///
     /// # Example
     ///
     /// ```rust
@@ -182,6 +188,7 @@ impl UtcTime {
     /// let now = UtcTime::from_system_time(system_time).unwrap();
     /// # };
     /// ```
+    #[must_use]
     #[cfg(feature = "std")]
     #[cfg_attr(docsrs, doc(cfg(feature = "std")))]
     pub fn from_system_time(value: SystemTime) -> Option<Self> {
@@ -201,6 +208,8 @@ impl UtcTime {
     /// let timestamp = UtcTime::from_duration(duration).unwrap();
     /// assert_eq!(timestamp.as_nanos(), 42_000_000_000);
     /// ```
+    #[must_use]
+    #[allow(clippy::cast_possible_wrap)]
     pub const fn from_duration(value: Duration) -> Option<Self> {
         const I64_MAX: u64 = i64::MAX as u64;
         let secs = match value.as_secs() {
@@ -223,6 +232,7 @@ impl UtcTime {
     /// assert!(total_secs > 1_658_711_810);
     /// assert!(total_secs < 1_974_324_043); // update before 2032-07-25
     /// ```
+    #[must_use]
     #[inline]
     pub const fn as_secs(self) -> i64 {
         self.secs
@@ -240,6 +250,7 @@ impl UtcTime {
     /// assert!(total_millis > 1_658_711_810_802);
     /// assert!(total_millis < 1_974_324_043_000); // update before 2032-07-25
     /// ```
+    #[must_use]
     pub const fn as_millis(self) -> i128 {
         (self.secs as i128 * 1_000) + (self.nanos as i128 / 1_000_000)
     }
@@ -256,6 +267,7 @@ impl UtcTime {
     /// assert!(total_micros > 1_658_711_810_802_520);
     /// assert!(total_micros < 1_974_324_043_000_000); // update before 2032-07-25
     /// ```
+    #[must_use]
     pub const fn as_micros(self) -> i128 {
         (self.secs as i128 * 1_000_000) + (self.nanos as i128 / 1_000)
     }
@@ -272,6 +284,7 @@ impl UtcTime {
     /// assert!(total_nanos > 1_658_711_810_802_520_027);
     /// assert!(total_nanos < 1_974_324_043_000_000_000); // update before 2032-07-25
     /// ```
+    #[must_use]
     pub const fn as_nanos(self) -> i128 {
         (self.secs as i128 * 1_000_000_000) + (self.nanos as i128)
     }
@@ -287,6 +300,7 @@ impl UtcTime {
     /// let millis = now.subsec_millis();
     /// assert!(millis < 1_000);
     /// ```
+    #[must_use]
     pub const fn subsec_millis(self) -> u32 {
         self.nanos / 1_000_000
     }
@@ -302,6 +316,7 @@ impl UtcTime {
     /// let micros = now.subsec_micros();
     /// assert!(micros < 1_000_000);
     /// ```
+    #[must_use]
     pub const fn subsec_micros(self) -> u32 {
         self.nanos / 1_000
     }
@@ -317,6 +332,7 @@ impl UtcTime {
     /// let nanos = now.subsec_nanos();
     /// assert!(nanos < 1_000_000_000);
     /// ```
+    #[must_use]
     #[inline]
     pub const fn subsec_nanos(self) -> u32 {
         self.nanos
@@ -332,8 +348,9 @@ impl UtcTime {
     /// let now = UtcTime::now().unwrap();
     /// let duration = now.into_duration().unwrap();
     /// ```
+    #[allow(clippy::cast_sign_loss)]
     #[const_fn::const_fn("1.58")]
-    pub fn into_duration(self) -> core::result::Result<Duration, ConversionError> {
+    pub fn into_duration(self) -> Result<Duration, ConversionError> {
         let secs = match self.secs {
             secs @ 0..=i64::MAX => secs as u64,
             _ => return Err(ConversionError),
@@ -342,6 +359,10 @@ impl UtcTime {
     }
 
     /// Convert the timestamp to a [SystemTime]
+    ///
+    /// # Errors
+    ///
+    /// The conversion won't succeed if and only if the stored date is earlier than 1970-01-01.
     ///
     /// # Example
     ///
@@ -356,9 +377,9 @@ impl UtcTime {
     #[inline]
     #[cfg(feature = "std")]
     #[cfg_attr(docsrs, doc(cfg(feature = "std")))]
-    pub fn into_system_time(self) -> core::result::Result<SystemTime, ConversionError> {
+    pub fn into_system_time(self) -> Result<SystemTime, ConversionError> {
         SystemTime::UNIX_EPOCH
-            .checked_add(self.try_into()?)
+            .checked_add(self.into_duration()?)
             .ok_or(ConversionError)
     }
 }
@@ -366,6 +387,13 @@ impl UtcTime {
 /// Get the current unix time, seconds since 1970-01-01 in UTC
 ///
 /// Please see the [module level documentation](crate) for more information.
+///
+/// # Errors
+///
+/// For many target platforms this call cannot fail.
+/// If this is true for the current target, then the constant [`INFALLIBLE`] will be `true`.
+/// Rust will automatically optimize the [`unwrap()`](Result::unwrap) call into a no-op in this case.
+/// Independent of the target platform the [`Error`] type will always be [`Send`] + [`Sync`] + [`Copy`].
 ///
 /// # Example
 ///
@@ -422,14 +450,14 @@ impl TryFrom<SystemTime> for UtcTime {
 /// A result type that default to [`Error`] as error type
 ///
 /// For many target platforms [`utcnow()`] cannot fail.
-/// If this is true for the current target, then the constant `INFALLIBLE` will be `true`.
-/// Rust will automatically optimize the call [`unwrap()`](Result::unwrap) call into a no-op in this case.
+/// If this is true for the current target, then the constant [`INFALLIBLE`] will be `true`.
+/// Rust will automatically optimize the [`unwrap()`](Result::unwrap) call into a no-op in this case.
 pub type Result<T, E = Error> = core::result::Result<T, E>;
 
 /// Could not query system time
 ///
 /// For many target platforms [`utcnow()`] cannot fail.
-/// If this is true for the current target, then the constant `INFALLIBLE` will be `true`.
+/// If this is true for the current target, then the constant [`INFALLIBLE`] will be `true`.
 /// Independent of the target platform the [`Error`] type will always be [`Send`] + [`Sync`] + [`Copy`].
 #[derive(Debug, Clone, Copy)]
 pub struct Error(OsError);

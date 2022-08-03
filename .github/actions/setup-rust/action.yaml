@@ -5,39 +5,39 @@ inputs:
     description: Cache key
     required: true
   toolchain:
-    description: Pass-through to toolchain on actions-rs
+    description: Pass-through
     default: stable
     required: false
   components:
-    description: Pass-through to components on actions-rs
+    description: Pass-through
     required: false
   target:
-    description: Pass-through to components on actions-rs
+    description: Pass-through
     required: false
 
 runs:
   using: composite
   steps:
+    - name: Remove rustfmt
+      run: rm -f ~/.cargo/bin/rustfmt ~/.cargo/bin/cargo-fmt
+      shell: bash
+
     - name: Install Toolchain
-      uses: actions-rs/toolchain@v1
+      uses: dtolnay/rust-toolchain@v1
       id: toolchain-install
       with:
-        profile: minimal
         toolchain: ${{ inputs.toolchain }}
         components: ${{ inputs.components }}
         target: ${{ inputs.target }}
-        override: true
 
-    - name: Build Cache
-      uses: actions/cache@v3
-      with:
-        path: |
-          ~/.cargo/registry/index/
-          ~/.cargo/registry/cache/
-          ~/.cargo/git/db/
-          ~/.cargo/bin/
-          target/
-        key: |
-          ${{ inputs.key }}-${{ runner.os }}-${{ inputs.target }}-${{ inputs.toolchain }}-${{ steps.toolchain-install.outputs.rustc_hash }}-${{ hashFiles('**/Cargo.toml', 'Cargo.lock') }}
-        restore-keys: |
-          ${{ inputs.key }}-${{ runner.os }}-${{ inputs.target }}-${{ inputs.toolchain }}-${{ steps.toolchain-install.outputs.rustc_hash }}-
+    - name: Set default toolchain
+      run: rustup default ${{ inputs.toolchain }} || true
+      shell: bash
+
+    - name: Update self
+      run: rustup self update || true
+      shell: bash
+
+    - name: Update
+      run: rustup update || true
+      shell: bash
