@@ -80,6 +80,18 @@
 //! Increasing the <abbr title="Minimum Supported Rust Version">msrv</abbr> for [tier-2](https://doc.rust-lang.org/nightly/rustc/platform-support.html) or
 //! lower platforms will not be indicated as a breaking change to the semver version.
 //!
+//! ### Feature flags
+//!
+//! `utcnow` has the following optional features:
+//!
+//! * `serde`, which implements [`serde::Deserialize`] and [`serde::Serialize`] for [`UtcTime`].
+//!
+//! * `arbitrary`, which implements the [`arbitrary::Arbitrary`] trait for using [`UtcTime`].
+//!
+//! * `proptest`, which implements the [`proptest::arbitrary::Arbitrary`] trait for using [`UtcTime`].
+//!
+//! * `quickcheck`, which implements the [`quickcheck::Arbitrary`] trait for using [`UtcTime`].
+//!
 
 #![cfg_attr(not(any(test, feature = "std")), no_std)]
 #![cfg_attr(docsrs, feature(doc_cfg))]
@@ -97,6 +109,16 @@
 #![warn(unused_lifetimes)]
 #![warn(unused_results)]
 
+#[cfg(docsrs)]
+pub mod changelog;
+#[cfg(feature = "arbitrary")]
+mod feat_arbitrary;
+#[cfg(feature = "proptest")]
+mod feat_proptest;
+#[cfg(feature = "quickcheck")]
+mod feat_quickcheck;
+#[cfg(feature = "serde")]
+mod feat_serde;
 #[cfg_attr(
     any(
         target_os = "dragonfly",
@@ -174,6 +196,34 @@ impl UtcTime {
     #[inline]
     pub fn now() -> Result<Self> {
         utcnow()
+    }
+
+    /// Build  a new [`UtcTime`]
+    ///
+    /// `nanos` will be normalized to a values less than `1_000_000_000`, the number of nanoseconds in a second.
+    /// If the resulting number of seconds will exceed [`i64::MAX`], [`None`] is returned.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// # use utcnow::UtcTime;
+    /// // August 3, 2022, about 19 o'clock in the evening in CEST.
+    /// let timestamp = UtcTime::new(1_659_545_693, 895_531_827).unwrap();
+    /// ```
+    #[must_use]
+    pub const fn new(secs: i64, nanos: u32) -> Option<Self> {
+        const NANOS_PER_SEC: u32 = 1_000_000_000;
+
+        if nanos < NANOS_PER_SEC {
+            return Some(Self { secs, nanos });
+        }
+
+        let extra_seconds = nanos / NANOS_PER_SEC;
+        let nanos = nanos % NANOS_PER_SEC;
+        match secs.checked_add(extra_seconds as i64) {
+            Some(secs) => Some(Self { secs, nanos }),
+            None => None,
+        }
     }
 
     /// Convert a [SystemTime]
