@@ -53,6 +53,7 @@
 //!
 //! **Supported and tested:**
 //!
+//! * Android
 //! * Emscripten
 //! * FreeBSD
 //! * Illumos
@@ -66,7 +67,6 @@
 //!
 //! **(Probably) supported, but not actually tested:**
 //!
-//! * Android
 //! * Darwin
 //! * Dragonfly
 //! * Fuchsia

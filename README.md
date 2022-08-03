@@ -35,6 +35,7 @@ If you know how to implement another target, then please open a [pull request](h
 
 **Supported and tested:**
 
+* Android
 * Emscripten
 * FreeBSD
 * Illumos
@@ -48,7 +49,6 @@ If you know how to implement another target, then please open a [pull request](h
 
 **(Probably) supported, but not actually tested:**
 
-* Android
 * Darwin
 * Dragonfly
 * Fuchsia
