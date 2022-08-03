@@ -244,11 +244,10 @@ jobs:
           target: ${{ matrix.target }}
           components: clippy
 
-      - run: cross rustc --target ${{ matrix.target }} -- --version || cargo +stable install cross --force
-      - run: cross clippy --target ${{ matrix.target }} --package utcnow --all-targets -- -D warnings
-      - run: cross clippy --target ${{ matrix.target }} --package utcnow --all-targets -- -D clippy::pedantic
-      - run: cross build --target ${{ matrix.target }} --examples
-      - run: cross build --target ${{ matrix.target }} --examples --no-default-features
+      - run: cargo clippy --target ${{ matrix.target }} --package utcnow --all-targets -- -D warnings
+      - run: cargo clippy --target ${{ matrix.target }} --package utcnow --all-targets -- -D clippy::pedantic
+      - run: cargo build --target ${{ matrix.target }} --examples
+      - run: cargo build --target ${{ matrix.target }} --examples --no-default-features
 
   cross-build-lib-only:
     strategy:
