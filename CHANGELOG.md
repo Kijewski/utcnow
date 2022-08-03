@@ -1,5 +1,12 @@
 ## Changes between the versions
 
+### 0.1.5 (2022-08-03)
+
+* Add method `UtcTime::new()`
+  ([#6](https://github.com/Kijewski/utcnow/pull/6))
+* Add optional features `serde`, `arbitrary`, `proptest`, `quickcheck`
+  ([#6](https://github.com/Kijewski/utcnow/pull/6))
+
 ### 0.1.4 (2022-08-03)
 
 * Make `from_duration()` and `into_duration()` const

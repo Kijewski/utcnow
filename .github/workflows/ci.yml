@@ -279,7 +279,7 @@ jobs:
       - run: cross build --target ${{ matrix.target }} --workspace
       - run: cross build --target ${{ matrix.target }} --workspace --no-default-features
 
-  minimum-versions:
+  minimal-versions:
     runs-on: ubuntu-20.04
     steps:
       - name: Checkout
@@ -288,10 +288,11 @@ jobs:
       - name: Setup Rust
         uses: ./.github/actions/setup-rust
         with:
-          key: minimum-versions
-          toolchain: nightly
+          key: minimal-versions
 
       - name: Update lockfile
+        env:
+          RUSTC_BOOTSTRAP: 1
         run: cargo generate-lockfile -Zminimal-versions
 
       - name: Test
@@ -332,3 +333,32 @@ jobs:
         uses: github/codeql-action/upload-sarif@v2
         with:
           sarif_file: devskim-results.sarif
+
+  powerset:
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Setup Rust
+        uses: ./.github/actions/setup-rust
+
+      - run: cargo hack --version || cargo install cargo-hack --force
+      - run: cargo hack test --feature-powerset --include-features arbitrary,proptest,quickcheck,serde
+
+  powerset-minimal-versions:
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Setup Rust
+        uses: ./.github/actions/setup-rust
+
+      - run: cargo hack --version || cargo install cargo-hack --force
+
+      - run: cargo generate-lockfile -Zminimal-versions
+        env:
+          RUSTC_BOOTSTRAP: 1
+
+      - run: cargo hack test --feature-powerset --include-features arbitrary,proptest,quickcheck,serde

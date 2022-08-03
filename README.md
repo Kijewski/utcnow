@@ -58,3 +58,17 @@ If you know how to implement another target, then please open a [pull request](h
 
 Increasing the <abbr title="Minimum Supported Rust Version">msrv</abbr> for [tier-2](https://doc.rust-lang.org/nightly/rustc/platform-support.html) or
 lower platforms will not be indicated as a breaking change to the semver version.
+
+### Feature flags
+
+`utcnow` has the following optional features:
+
+* `serde`, which implements [`serde::Deserialize`](https://docs.rs/serde/1/serde/trait.Deserialize.html)
+   and [`serde::Serialize`](https://docs.rs/serde/1/serde/trait.Serialize.html) for `UtcTime`.
+* `arbitrary`, which implements the [`arbitrary::Arbitrary`](https://docs.rs/arbitrary/1/arbitrary/trait.Arbitrary.html)
+  trait for using `UtcTime`.
+* `proptest`, which implements the [`proptest::arbitrary::Arbitrary`](https://docs.rs/proptest/1/proptest/arbitrary/trait.Arbitrary.html)
+  trait for using `UtcTime`.
+* `quickcheck`, which implements the [`quickcheck::Arbitrary`](https://docs.rs/quickcheck/1/quickcheck/trait.Arbitrary.html)
+  trait for using `UtcTime`.
+ 
