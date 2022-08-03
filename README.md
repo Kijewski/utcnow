@@ -65,10 +65,10 @@ lower platforms will not be indicated as a breaking change to the semver version
 
 * `serde`, which implements [`serde::Deserialize`](https://docs.rs/serde/1/serde/trait.Deserialize.html)
    and [`serde::Serialize`](https://docs.rs/serde/1/serde/trait.Serialize.html) for `UtcTime`.
-* `arbitrary`, which implements the [`arbitrary::Arbitrary`](https://docs.rs/arbitrary/1/arbitrary/trait.Arbitrary.html)
-  trait for using `UtcTime`.
-* `proptest`, which implements the [`proptest::arbitrary::Arbitrary`](https://docs.rs/proptest/1/proptest/arbitrary/trait.Arbitrary.html)
-  trait for using `UtcTime`.
-* `quickcheck`, which implements the [`quickcheck::Arbitrary`](https://docs.rs/quickcheck/1/quickcheck/trait.Arbitrary.html)
-  trait for using `UtcTime`.
+
+* `arbitrary`, which implements the [`arbitrary::Arbitrary`](https://docs.rs/arbitrary/1/arbitrary/trait.Arbitrary.html) trait for `UtcTime`.
+
+* `proptest`, which implements the [`proptest::arbitrary::Arbitrary`](https://docs.rs/proptest/1/proptest/arbitrary/trait.Arbitrary.html) trait for `UtcTime`.
+
+* `quickcheck`, which implements the [`quickcheck::Arbitrary`](https://docs.rs/quickcheck/1/quickcheck/trait.Arbitrary.html) trait for `UtcTime`.
  

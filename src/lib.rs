@@ -86,11 +86,11 @@
 //!
 //! * `serde`, which implements [`serde::Deserialize`] and [`serde::Serialize`] for [`UtcTime`].
 //!
-//! * `arbitrary`, which implements the [`arbitrary::Arbitrary`] trait for using [`UtcTime`].
+//! * `arbitrary`, which implements the [`arbitrary::Arbitrary`] trait for [`UtcTime`].
 //!
-//! * `proptest`, which implements the [`proptest::arbitrary::Arbitrary`] trait for using [`UtcTime`].
+//! * `proptest`, which implements the [`proptest::arbitrary::Arbitrary`] trait for [`UtcTime`].
 //!
-//! * `quickcheck`, which implements the [`quickcheck::Arbitrary`] trait for using [`UtcTime`].
+//! * `quickcheck`, which implements the [`quickcheck::Arbitrary`] trait for [`UtcTime`].
 //!
 
 #![cfg_attr(not(any(test, feature = "std")), no_std)]
