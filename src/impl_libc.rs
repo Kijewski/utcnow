@@ -6,6 +6,9 @@ pub(crate) const IMPLEMENTED: bool = true;
 pub(crate) const INFALLIBLE: bool = false;
 
 #[allow(trivial_casts)]
+#[allow(clippy::cast_lossless)]
+#[allow(clippy::cast_possible_truncation)]
+#[allow(clippy::cast_sign_loss)]
 pub(crate) fn utcnow() -> Result<UtcTime> {
     let mut now = libc::timespec {
         tv_sec: 0,
@@ -41,7 +44,7 @@ impl fmt::Display for OsError {
                 use core::str::from_utf8_unchecked;
 
                 let msg = unsafe {
-                    from_utf8_unchecked(&*slice_from_raw_parts(msg as *mut u8, libc::strlen(msg)))
+                    from_utf8_unchecked(&*slice_from_raw_parts(msg.cast::<u8>(), libc::strlen(msg)))
                 };
                 write!(f, "could not query clock_gettime(): {}", msg)
             },

@@ -11,7 +11,7 @@ on:
     - cron: "58 7 * * 3"
 
 jobs:
-  fmt:
+  lint-nightly:
     runs-on: ubuntu-20.04
     steps:
       - name: Checkout
@@ -20,21 +20,36 @@ jobs:
       - name: Setup Rust
         uses: ./.github/actions/setup-rust
         with:
-          key: fmt
           toolchain: nightly
-          components: rustfmt
+          components: rustfmt,rust-docs
 
       - run: cargo fmt --all -- --check
+      - run: RUSTDOCFLAGS="-D warnings --cfg docsrs" cargo doc --package utcnow --all-features --no-deps
+
+  lint-stable:
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Setup Rust
+        uses: ./.github/actions/setup-rust
+        with:
+          toolchain: nightly
+          components: clippy
+
+      - run: cargo clippy --package utcnow --all-targets -- -D clippy::pedantic
+      - run: cargo package --package utcnow
 
   check:
     strategy:
+      fail-fast: false
       matrix:
         toolchain:
           - "1.48"
           - stable
           - nightly
 
-    name: "Check/${{ matrix.toolchain }}"
     runs-on: ubuntu-20.04
     steps:
       - name: Checkout
@@ -43,18 +58,15 @@ jobs:
       - name: Setup Rust
         uses: ./.github/actions/setup-rust
         with:
-          key: check
           toolchain: ${{ matrix.toolchain }}
           components: clippy
 
-      - name: Check
-        run: cargo check --package utcnow --all-targets
-
-      - name: Lint
-        run: cargo clippy --package utcnow --all-targets -- -D warnings
+      - run: cargo check --package utcnow --all-targets
+      - run: cargo clippy --package utcnow --all-targets -- -D warnings
 
   test:
     strategy:
+      fail-fast: false
       matrix:
         toolchain:
           - "1.48"
@@ -65,7 +77,6 @@ jobs:
           - windows-2022
           - macos-12
 
-    name: "Test/${{ matrix.toolchain }} (${{ matrix.platform }})"
     runs-on: ${{ matrix.platform }}
     steps:
       - name: Checkout
@@ -74,28 +85,16 @@ jobs:
       - name: Setup Rust
         uses: ./.github/actions/setup-rust
         with:
-          key: test
           toolchain: ${{ matrix.toolchain }}
+          components: clippy
 
-      - name: Test library
-        run: cargo test --workspace -- --show-output
-
-      - name: Test library (no-default-features)
-        run: cargo test --workspace --no-default-features -- --show-output
-
-      - name: Run example
-        run: |
-          cargo run --example minimal
-          date +%s.%9N
-
-      - name: Run example (no-default-features)
-        run: |
-          cargo run --example minimal --no-default-features
-          date +%s.%9N
+      - run: cargo test --workspace -- --show-output
+      - run: cargo test --workspace --no-default-features -- --show-output
+      - run: cargo run --example minimal && date +%s.%9N
+      - run: cargo run --example minimal --no-default-features & date +%s.%9N
 
   test-wasm:
     runs-on: ubuntu-20.04
-    name: "Test WebAssembly"
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -103,26 +102,22 @@ jobs:
       - name: Setup Rust
         uses: ./.github/actions/setup-rust
         with:
-          key: wasm
           toolchain: stable
           target: wasm32-unknown-unknown
+          components: clippy
 
       - name: Install Node
         uses: actions/setup-node@v3
         with:
           node-version: 14
 
-      - name: Install wasm-pack
-        run: which wasm-pack || cargo install wasm-pack
-
-      - name: Build and run example
-        run: |
-          wasm-pack test --node
-          date +%s.%9N
+      - run: which wasm-pack || cargo install wasm-pack
+      - run: wasm-pack test --node && date +%s.%9N
+      - run: cargo clippy --target wasm32-unknown-unknown --package utcnow --all-targets -- -D warnings
+      - run: cargo clippy --target wasm32-unknown-unknown --package utcnow --all-targets -- -D clippy::pedantic
 
   run-wasi:
     runs-on: ubuntu-20.04
-    name: "Run WASI"
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -130,28 +125,24 @@ jobs:
       - name: Setup Rust
         uses: ./.github/actions/setup-rust
         with:
-          key: wasi
           toolchain: stable
           target: wasm32-wasi
+          components: clippy
 
-      - name: Install wasmtime
-        run: curl https://wasmtime.dev/install.sh -sSf | bash
-
-      - name: Build example
-        run: cargo build --target wasm32-wasi --example minimal
-
-      - name: Run example
-        run: |
-          ~/.wasmtime/bin/wasmtime target/wasm32-wasi/debug/examples/minimal.wasm
-          date +%s.%9N
+      - run: cargo clippy --target wasm32-wasi --package utcnow --all-targets -- -D warnings
+      - run: cargo clippy --target wasm32-wasi --package utcnow --all-targets -- -D clippy::pedantic
+      - run: curl https://wasmtime.dev/install.sh -sSf | bash
+      - run: cargo build --target wasm32-wasi --example minimal
+      - run: ~/.wasmtime/bin/wasmtime target/wasm32-wasi/debug/examples/minimal.wasm && date +%s.%9N
 
   cross-run-test:
     strategy:
+      fail-fast: false
       matrix:
         target:
           - wasm32-unknown-emscripten
+
     runs-on: ubuntu-20.04
-    name: "Test ${{ matrix.target }}"
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -160,30 +151,25 @@ jobs:
         id: actions-rs
         uses: ./.github/actions/setup-rust
         with:
-          key: cross-run-test
           toolchain: stable
           target: ${{ matrix.target }}
+          components: clippy
 
-      - name: Install cross
-        run: which cross || cargo install cross
-
-      - name: Lint
-        run: cross clippy --target ${{ matrix.target }} --workspace -- -D warnings
-
-      - name: Test library
-        run: cross test --target ${{ matrix.target }} --workspace -- --show-output
-
-      - name: Test library (no-default-features)
-        run: cross test --target ${{ matrix.target }} --workspace --no-default-features -- --show-output
+      - run: cross rustc --target ${{ matrix.target }} -- --version || cargo +stable install cross --force
+      - run: cross clippy --target ${{ matrix.target }} --package utcnow --all-targets -- -D warnings
+      - run: cross clippy --target ${{ matrix.target }} --package utcnow --all-targets -- -D clippy::pedantic
+      - run: cross test --target ${{ matrix.target }} --workspace -- --show-output
+      - run: cross test --target ${{ matrix.target }} --workspace --no-default-features -- --show-output
 
   cross-execute:
     strategy:
+      fail-fast: false
       matrix:
         target:
           - i686-unknown-linux-musl
           - x86_64-unknown-linux-musl
+
     runs-on: ubuntu-20.04
-    name: "Test ${{ matrix.target }}"
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -195,39 +181,26 @@ jobs:
           key: cross-run-test
           toolchain: stable
           target: ${{ matrix.target }}
+          components: clippy
 
-      - name: Install cross
-        run: which cross || cargo install cross
-
-      - name: Lint
-        run: cross clippy --target ${{ matrix.target }} --workspace -- -D warnings
-
-      - name: Test library
-        run: cross test --target ${{ matrix.target }} --workspace -- --show-output
-
-      - name: Test library (no-default-features)
-        run: cross test --target ${{ matrix.target }} --workspace --no-default-features -- --show-output
-
-      - name: Run example
-        run: |
-          cargo run --example minimal
-          date +%s.%9N
-
-      - name: Run example (no-default-features)
-        run: |
-          cargo run --example minimal --no-default-features
-          date +%s.%9N
+      - run: cargo clippy --target ${{ matrix.target }} --package utcnow --all-targets -- -D warnings
+      - run: cargo clippy --target ${{ matrix.target }} --package utcnow --all-targets -- -D clippy::pedantic
+      - run: cargo test --target ${{ matrix.target }} --workspace -- --show-output
+      - run: cargo test --target ${{ matrix.target }} --workspace --no-default-features -- --show-output
+      - run: cargo run --example minimal && date +%s.%9N
+      - run: cargo run --example minimal --no-default-features && date +%s.%9N
 
   cross-no-execute:
     strategy:
+      fail-fast: false
       matrix:
         target:
           - thumbv7neon-linux-androideabi
           - x86_64-linux-android
           - x86_64-unknown-freebsd
           - x86_64-unknown-netbsd
+
     runs-on: ubuntu-20.04
-    name: "Build for ${{ matrix.target }}"
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -239,29 +212,25 @@ jobs:
           key: cross-no-execute
           toolchain: stable
           target: ${{ matrix.target }}
+          components: clippy
 
-      - name: Install cross
-        run: which cross || cargo install cross
-
-      - name: Lint
-        run: cross clippy --target ${{ matrix.target }} --workspace -- -D warnings
-
-      - name: Build library
-        run: cross build --target ${{ matrix.target }} --examples
-
-      - name: Build library (no-default-features)
-        run: cross build --target ${{ matrix.target }} --examples --no-default-features
+      - run: cross rustc --target ${{ matrix.target }} -- --version || cargo +stable install cross --force
+      - run: cross clippy --target ${{ matrix.target }} --package utcnow --all-targets -- -D warnings
+      - run: cross clippy --target ${{ matrix.target }} --package utcnow --all-targets -- -D clippy::pedantic
+      - run: cross build --target ${{ matrix.target }} --examples
+      - run: cross build --target ${{ matrix.target }} --examples --no-default-features
 
   cross-ios:
     strategy:
+      fail-fast: false
       matrix:
         target:
           - aarch64-apple-ios
           - aarch64-apple-ios-sim
           - x86_64-apple-darwin
           - x86_64-apple-ios
+
     runs-on: macos-12
-    name: "Build for ${{ matrix.target }}"
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -273,29 +242,25 @@ jobs:
           key: cross-macos
           toolchain: stable
           target: ${{ matrix.target }}
+          components: clippy
 
-      - name: Install cross
-        run: which cross || cargo install cross
-
-      - name: Lint
-        run: cross clippy --target ${{ matrix.target }} --workspace -- -D warnings
-
-      - name: Build library
-        run: cross build --target ${{ matrix.target }} --examples
-
-      - name: Build library (no-default-features)
-        run: cross build --target ${{ matrix.target }} --examples --no-default-features
+      - run: cross rustc --target ${{ matrix.target }} -- --version || cargo +stable install cross --force
+      - run: cross clippy --target ${{ matrix.target }} --package utcnow --all-targets -- -D warnings
+      - run: cross clippy --target ${{ matrix.target }} --package utcnow --all-targets -- -D clippy::pedantic
+      - run: cross build --target ${{ matrix.target }} --examples
+      - run: cross build --target ${{ matrix.target }} --examples --no-default-features
 
   cross-build-lib-only:
     strategy:
+      fail-fast: false
       matrix:
         target:
           - x86_64-fuchsia
           - x86_64-pc-solaris
           - x86_64-unknown-illumos
           - x86_64-unknown-redox
+
     runs-on: ubuntu-20.04
-    name: "Build for ${{ matrix.target }}"
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -307,21 +272,15 @@ jobs:
           key: cross-build-lib-only
           toolchain: stable
           target: ${{ matrix.target }}
+          components: clippy
 
-      - name: Install cross
-        run: which cross || cargo install cross
-
-      - name: Lint
-        run: cross clippy --target ${{ matrix.target }} --workspace -- -D warnings
-
-      - name: Build library
-        run: cross build --target ${{ matrix.target }} --workspace
-
-      - name: Build library (no-default-features)
-        run: cross build --target ${{ matrix.target }} --workspace --no-default-features
+      - run: cross rustc --target ${{ matrix.target }} -- --version || cargo +stable install cross --force
+      - run: cross clippy --target ${{ matrix.target }} --package utcnow --all-targets -- -D warnings
+      - run: cross clippy --target ${{ matrix.target }} --package utcnow --all-targets -- -D clippy::pedantic
+      - run: cross build --target ${{ matrix.target }} --workspace
+      - run: cross build --target ${{ matrix.target }} --workspace --no-default-features
 
   minimum-versions:
-    name: "Minimal versions"
     runs-on: ubuntu-20.04
     steps:
       - name: Checkout
@@ -339,24 +298,7 @@ jobs:
       - name: Test
         run: cargo test --all-targets -- --show-output
 
-  doc:
-    name: "Documentation"
-    runs-on: ubuntu-20.04
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-
-      - name: Setup Rust
-        uses: ./.github/actions/setup-rust
-        with:
-          key: name
-          toolchain: nightly
-          components: rust-docs
-
-      - run: RUSTDOCFLAGS="-D warnings --cfg docsrs" cargo doc --package utcnow --all-features --no-deps
-
   audit:
-    name: "Cargo audit"
     runs-on: ubuntu-20.04
     steps:
       - name: Checkout
@@ -375,7 +317,6 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
 
   devskim:
-    name: DevSkim
     runs-on: ubuntu-20.04
     permissions:
       actions: read

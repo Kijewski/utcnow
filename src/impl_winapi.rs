@@ -9,6 +9,7 @@ use crate::{Result, UtcTime};
 pub(crate) const IMPLEMENTED: bool = true;
 pub(crate) const INFALLIBLE: bool = true;
 
+#[allow(clippy::unnecessary_wraps)]
 pub(crate) fn utcnow() -> Result<UtcTime> {
     let mut now = FILETIME {
         dwLowDateTime: 0,

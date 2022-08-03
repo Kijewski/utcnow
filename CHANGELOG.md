@@ -4,6 +4,8 @@
 
 * Make `from_duration()` and `into_duration()` const
   ([#3](https://github.com/Kijewski/utcnow/pull/3))
+* Fix `clippy::pedantic` warnings
+  ([#4](https://github.com/Kijewski/utcnow/pull/4))
 
 ### 0.1.3 (2022-07-25)
 
