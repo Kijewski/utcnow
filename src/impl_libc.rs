@@ -25,7 +25,7 @@ pub(crate) fn utcnow() -> Result<UtcTime> {
 
     let secs = now.tv_sec as i64; // tv_sec is i32 is emscripten
     let nanos = now.tv_nsec as u32;
-    Ok(UtcTime { secs, nanos })
+    Ok(unsafe { UtcTime::create(secs, nanos) })
 }
 
 #[derive(Debug, Clone, Copy)]

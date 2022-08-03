@@ -11,10 +11,9 @@ pub(crate) const INFALLIBLE: bool = true;
 #[allow(clippy::unnecessary_wraps)]
 pub(crate) fn utcnow() -> Result<UtcTime> {
     let millis = js_sys::Date::now();
-    Ok(UtcTime {
-        secs: millis.div_euclid(1000_f64) as i64,
-        nanos: millis.rem_euclid(1000_f64) as u32 * 1_000_000,
-    })
+    let secs = millis.div_euclid(1000_f64) as i64;
+    let nanos = millis.rem_euclid(1000_f64) as u32 * 1_000_000;
+    Ok(unsafe { UtcTime::create(secs, nanos) })
 }
 
 #[derive(Debug, Clone, Copy)]
