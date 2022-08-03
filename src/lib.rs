@@ -150,6 +150,7 @@ mod feat_serde;
     path = "impl_web.rs"
 )]
 mod platform;
+mod u30;
 
 use core::convert::TryFrom;
 use core::fmt;
@@ -158,6 +159,7 @@ use core::time::Duration;
 use std::time::SystemTime;
 
 use crate::platform::OsError;
+use crate::u30::U30;
 
 /// `true` if getting the time is implemented for the target platform
 pub const IMPLEMENTED: bool = platform::IMPLEMENTED;
@@ -173,10 +175,16 @@ pub struct UtcTime {
     /// Seconds since epoch
     secs: i64,
     /// Nanoseconds since epoch
-    nanos: u32,
+    nanos: U30,
 }
 
 impl UtcTime {
+    /// Start of the [Unix time](https://en.wikipedia.org/w/index.php?title=Unix_time&oldid=1099912565) epoch, 1970-01-01.
+    pub const EPOCH: UtcTime = UtcTime {
+        secs: 0,
+        nanos: U30::ZERO,
+    };
+
     /// Get the current time
     ///
     /// This method does the same as calling [`utcnow()`].
@@ -198,6 +206,13 @@ impl UtcTime {
         utcnow()
     }
 
+    #[inline]
+    #[const_fn::const_fn("1.56")]
+    unsafe fn create(secs: i64, nanos: u32) -> Self {
+        let nanos = U30::new_unchecked(nanos);
+        Self { secs, nanos }
+    }
+
     /// Build  a new [`UtcTime`]
     ///
     /// `nanos` will be normalized to a values less than `1_000_000_000`, the number of nanoseconds in a second.
@@ -211,17 +226,18 @@ impl UtcTime {
     /// let timestamp = UtcTime::new(1_659_545_693, 895_531_827).unwrap();
     /// ```
     #[must_use]
-    pub const fn new(secs: i64, nanos: u32) -> Option<Self> {
+    #[const_fn::const_fn("1.56")]
+    pub fn new(secs: i64, nanos: u32) -> Option<Self> {
         const NANOS_PER_SEC: u32 = 1_000_000_000;
 
         if nanos < NANOS_PER_SEC {
-            return Some(Self { secs, nanos });
+            return Some(unsafe { Self::create(secs, nanos) });
         }
 
         let extra_seconds = nanos / NANOS_PER_SEC;
         let nanos = nanos % NANOS_PER_SEC;
         match secs.checked_add(extra_seconds as i64) {
-            Some(secs) => Some(Self { secs, nanos }),
+            Some(secs) => Some(unsafe { Self::create(secs, nanos) }),
             None => None,
         }
     }
@@ -260,14 +276,15 @@ impl UtcTime {
     /// ```
     #[must_use]
     #[allow(clippy::cast_possible_wrap)]
-    pub const fn from_duration(value: Duration) -> Option<Self> {
+    #[const_fn::const_fn("1.56")]
+    pub fn from_duration(value: Duration) -> Option<Self> {
         const I64_MAX: u64 = i64::MAX as u64;
         let secs = match value.as_secs() {
             secs @ 0..=I64_MAX => secs as i64,
             _ => return None,
         };
         let nanos = value.subsec_nanos();
-        Some(Self { secs, nanos })
+        Some(unsafe { Self::create(secs, nanos) })
     }
 
     /// Total number of whole seconds since epoch (1970-01-01 in UTC)
@@ -301,8 +318,9 @@ impl UtcTime {
     /// assert!(total_millis < 1_974_324_043_000); // update before 2032-07-25
     /// ```
     #[must_use]
-    pub const fn as_millis(self) -> i128 {
-        (self.secs as i128 * 1_000) + (self.nanos as i128 / 1_000_000)
+    #[const_fn::const_fn("1.56")]
+    pub fn as_millis(self) -> i128 {
+        (self.secs as i128 * 1_000) + (self.nanos.get() as i128 / 1_000_000)
     }
 
     /// Total number of whole microseconds since epoch (1970-01-01 in UTC)
@@ -318,8 +336,9 @@ impl UtcTime {
     /// assert!(total_micros < 1_974_324_043_000_000); // update before 2032-07-25
     /// ```
     #[must_use]
-    pub const fn as_micros(self) -> i128 {
-        (self.secs as i128 * 1_000_000) + (self.nanos as i128 / 1_000)
+    #[const_fn::const_fn("1.56")]
+    pub fn as_micros(self) -> i128 {
+        (self.secs as i128 * 1_000_000) + (self.nanos.get() as i128 / 1_000)
     }
 
     /// Total number of whole nanoseconds since epoch (1970-01-01 in UTC)
@@ -335,8 +354,9 @@ impl UtcTime {
     /// assert!(total_nanos < 1_974_324_043_000_000_000); // update before 2032-07-25
     /// ```
     #[must_use]
-    pub const fn as_nanos(self) -> i128 {
-        (self.secs as i128 * 1_000_000_000) + (self.nanos as i128)
+    #[const_fn::const_fn("1.56")]
+    pub fn as_nanos(self) -> i128 {
+        (self.secs as i128 * 1_000_000_000) + (self.nanos.get() as i128)
     }
 
     /// Fractional number of milliseconds since epoch (1970-01-01 in UTC)
@@ -351,8 +371,9 @@ impl UtcTime {
     /// assert!(millis < 1_000);
     /// ```
     #[must_use]
-    pub const fn subsec_millis(self) -> u32 {
-        self.nanos / 1_000_000
+    #[const_fn::const_fn("1.56")]
+    pub fn subsec_millis(self) -> u32 {
+        self.nanos.get() / 1_000_000
     }
 
     /// Fractional number of microseconds since epoch (1970-01-01 in UTC)
@@ -367,8 +388,9 @@ impl UtcTime {
     /// assert!(micros < 1_000_000);
     /// ```
     #[must_use]
-    pub const fn subsec_micros(self) -> u32 {
-        self.nanos / 1_000
+    #[const_fn::const_fn("1.56")]
+    pub fn subsec_micros(self) -> u32 {
+        self.nanos.get() / 1_000
     }
 
     /// Fractional number of nanoseconds since epoch (1970-01-01 in UTC)
@@ -384,8 +406,9 @@ impl UtcTime {
     /// ```
     #[must_use]
     #[inline]
-    pub const fn subsec_nanos(self) -> u32 {
-        self.nanos
+    #[const_fn::const_fn("1.56")]
+    pub fn subsec_nanos(self) -> u32 {
+        self.nanos.get()
     }
 
     /// Convert the timestamp to a [Duration] since epoch (1970-01-01 in UTC)
@@ -405,7 +428,7 @@ impl UtcTime {
             secs @ 0..=i64::MAX => secs as u64,
             _ => return Err(ConversionError),
         };
-        Ok(Duration::new(secs, self.nanos))
+        Ok(Duration::new(secs, self.nanos.get()))
     }
 
     /// Convert the timestamp to a [SystemTime]
@@ -552,4 +575,17 @@ impl std::error::Error for ConversionError {}
 #[test]
 fn test_if_can_call() {
     let _ = utcnow().unwrap();
+}
+
+#[cfg(test)]
+#[test]
+fn test_layout() {
+    use core::mem;
+
+    assert_eq!(mem::align_of::<u32>(), mem::align_of::<U30>());
+    assert_eq!(mem::size_of::<u32>(), mem::size_of::<U30>());
+    assert_eq!(mem::size_of::<u32>(), mem::size_of::<Option<U30>>());
+
+    assert_eq!(mem::size_of::<UtcTime>(), mem::size_of::<Option<UtcTime>>());
+    assert_eq!(mem::size_of::<UtcTime>(), mem::size_of::<Result<UtcTime>>());
 }

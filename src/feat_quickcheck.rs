@@ -6,12 +6,12 @@ impl Arbitrary for UtcTime {
     fn arbitrary(gen: &mut Gen) -> Self {
         let (secs, nanos) = <(i64, u32)>::arbitrary(gen);
         let nanos = nanos % 1_000_000_000;
-        Self { secs, nanos }
+        unsafe { UtcTime::create(secs, nanos) }
     }
 }
 
 #[cfg(all(test, not(miri)))]
 #[quickcheck_macros::quickcheck]
 fn minimal_test(value: UtcTime) {
-    assert!(value.nanos < 1_000_000_000);
+    assert!(value.nanos.get() < 1_000_000_000);
 }

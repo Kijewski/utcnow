@@ -11,7 +11,7 @@ impl Arbitrary for UtcTime {
     fn arbitrary_with(args: Self::Parameters) -> Self::Strategy {
         any_with::<(i64, u32)>(args).prop_map(|(secs, nanos)| {
             let nanos = nanos % 1_000_000_000;
-            Self { secs, nanos }
+            unsafe { UtcTime::create(secs, nanos) }
         })
     }
 }
@@ -20,6 +20,6 @@ proptest::proptest! {
     #[cfg(all(test, not(miri)))]
     #[test]
     fn minimal_test(value: crate::UtcTime) {
-        assert!(value.nanos < 1_000_000_000);
+        assert!(value.nanos.get() < 1_000_000_000);
     }
 }

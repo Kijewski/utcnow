@@ -11,10 +11,9 @@ pub(crate) const INFALLIBLE: bool = false;
 #[allow(clippy::cast_possible_wrap)]
 pub(crate) fn utcnow() -> Result<UtcTime> {
     let nanos = unsafe { clock_time_get(CLOCKID_REALTIME, 100) }.map_err(OsError)?;
-    Ok(UtcTime {
-        secs: nanos.div_euclid(1_000_000_000) as i64,
-        nanos: nanos.rem_euclid(1_000_000_000) as u32,
-    })
+    let secs = nanos.div_euclid(1_000_000_000) as i64;
+    let nanos = nanos.rem_euclid(1_000_000_000) as u32;
+    Ok(unsafe { UtcTime::create(secs, nanos) })
 }
 
 #[derive(Debug, Clone, Copy)]

@@ -9,7 +9,7 @@ impl<'de> Deserialize<'de> for UtcTime {
         D: Deserializer<'de>,
     {
         let (secs, nanos) = <(i64, u32)>::deserialize(deserializer)?;
-        Self::new(secs, nanos).ok_or_else(|| D::Error::custom("nanoseconds out of range"))
+        Self::new(secs, nanos).ok_or_else(|| D::Error::custom("UtcTime out of range"))
     }
 }
 
@@ -19,7 +19,7 @@ impl Serialize for UtcTime {
         S: serde::Serializer,
     {
         let Self { secs, nanos } = *self;
-        (secs, nanos).serialize(serializer)
+        (secs, nanos.get()).serialize(serializer)
     }
 }
 
@@ -27,34 +27,22 @@ impl Serialize for UtcTime {
 #[test]
 fn minimal_test() {
     // serialize
-    let value = UtcTime {
-        secs: 1_659_539_413,
-        nanos: 885_457_394,
-    };
+    let value = UtcTime::new(1_659_539_413, 885_457_394).unwrap();
     let string = serde_json::to_string(&value).unwrap();
     assert_eq!(string, "[1659539413,885457394]");
 
     // serialize < 1970
-    let value = UtcTime {
-        secs: -1_659_539_413,
-        nanos: 885_457_394,
-    };
+    let value = UtcTime::new(-1_659_539_413, 885_457_394).unwrap();
     let string = serde_json::to_string(&value).unwrap();
     assert_eq!(string, "[-1659539413,885457394]");
 
     // deserialize
-    let expected = UtcTime {
-        secs: 1_659_539_413,
-        nanos: 885_457_394,
-    };
+    let expected = UtcTime::new(1_659_539_413, 885_457_394).unwrap();
     let actual: UtcTime = serde_json::from_str("[1659539413,885457394]").unwrap();
     assert_eq!(actual, expected);
 
     // deserialize < 1970
-    let expected = UtcTime {
-        secs: -1_659_539_413,
-        nanos: 885_457_394,
-    };
+    let expected = UtcTime::new(-1_659_539_413, 885_457_394).unwrap();
     let actual: UtcTime = serde_json::from_str("[-1659539413,885457394]").unwrap();
     assert_eq!(actual, expected);
 

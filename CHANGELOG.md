@@ -1,11 +1,13 @@
 ## Changes between the versions
 
-### 0.1.5 (2022-08-03)
+### 0.2.0 (2022-08-04)
 
 * Add method `UtcTime::new()`
   ([#6](https://github.com/Kijewski/utcnow/pull/6))
 * Add optional features `serde`, `arbitrary`, `proptest`, `quickcheck`
   ([#6](https://github.com/Kijewski/utcnow/pull/6))
+* Use niche optimization
+  ([#7](https://github.com/Kijewski/utcnow/pull/7))
 
 ### 0.1.4 (2022-08-03)
 
