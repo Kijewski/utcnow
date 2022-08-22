@@ -26,41 +26,33 @@ impl U30 {
     // Both methods compile to identity functions:
 
     /// SAFETY: the caller has to ensure that the value is in range
+    #[allow(unconditional_panic)]
     #[inline]
     #[const_fn::const_fn("1.56")]
-    pub(crate) unsafe fn new_unchecked(value: u32) -> Self {
-        #[cfg(target_endian = "little")]
-        let [a, b, c, d] = value.to_le_bytes();
-        #[cfg(target_endian = "big")]
-        let [a, b, c, d] = value.to_be_bytes();
+    pub(crate) const unsafe fn new_unchecked(value: u32) -> Self {
+        if cfg!(debug_assertions) && value > 1_000_000_000 {
+            let illegal_value = [];
+            return illegal_value[0];
+        }
 
-        #[cfg(target_endian = "little")]
-        let d = mem::transmute(d);
-        #[cfg(target_endian = "big")]
-        let a = mem::transmute(a);
-
-        let align = [];
-        Self(Buf { align, a, b, c, d })
+        mem::transmute(value)
     }
 
     #[inline]
     #[const_fn::const_fn("1.56")]
-    pub(crate) fn get(self) -> u32 {
-        let Buf { a, b, c, d, .. } = self.0;
-
-        #[cfg(target_endian = "little")]
-        let d = unsafe { mem::transmute(d) };
-        #[cfg(target_endian = "big")]
-        let a = unsafe { mem::transmute(a) };
-
-        #[cfg(target_endian = "little")]
-        return u32::from_le_bytes([a, b, c, d]);
-        #[cfg(target_endian = "big")]
-        return u32::from_be_bytes([a, b, c, d]);
+    pub(crate) const fn get(self) -> u32 {
+        unsafe { mem::transmute(self) }
     }
 }
 
 impl fmt::Debug for U30 {
+    #[inline]
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        self.get().fmt(f)
+    }
+}
+
+impl fmt::Display for U30 {
     #[inline]
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         self.get().fmt(f)

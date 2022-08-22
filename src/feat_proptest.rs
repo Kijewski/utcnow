@@ -11,7 +11,7 @@ impl Arbitrary for UtcTime {
     fn arbitrary_with(args: Self::Parameters) -> Self::Strategy {
         any_with::<(i64, u32)>(args).prop_map(|(secs, nanos)| {
             let nanos = nanos % 1_000_000_000;
-            unsafe { UtcTime::create(secs, nanos) }
+            unsafe { UtcTime::new_unchecked(secs, nanos) }
         })
     }
 }

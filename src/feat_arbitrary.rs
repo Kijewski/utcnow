@@ -6,7 +6,7 @@ impl<'a> Arbitrary<'a> for UtcTime {
     fn arbitrary(u: &mut Unstructured<'a>) -> Result<Self> {
         let (secs, nanos) = <(i64, u32)>::arbitrary(u)?;
         let nanos = nanos % 1_000_000_000;
-        Ok(unsafe { UtcTime::create(secs, nanos) })
+        Ok(unsafe { UtcTime::new_unchecked(secs, nanos) })
     }
 
     #[inline]

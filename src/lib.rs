@@ -150,9 +150,11 @@ mod feat_serde;
     path = "impl_web.rs"
 )]
 mod platform;
+#[cfg(test)]
+mod test;
 mod u30;
 
-use core::convert::TryFrom;
+use core::convert::{TryFrom, TryInto};
 use core::fmt;
 use core::time::Duration;
 #[cfg(feature = "std")]
@@ -206,14 +208,19 @@ impl UtcTime {
         utcnow()
     }
 
+    /// Build a new [`UtcTime`] without normalization
+    ///
+    /// If the value for `nanos` exceeds `1_000_000_000`, your program is malformed.
+    /// Expect undefined behavior!
     #[inline]
+    #[must_use]
     #[const_fn::const_fn("1.56")]
-    unsafe fn create(secs: i64, nanos: u32) -> Self {
+    pub unsafe fn new_unchecked(secs: i64, nanos: u32) -> Self {
         let nanos = U30::new_unchecked(nanos);
         Self { secs, nanos }
     }
 
-    /// Build  a new [`UtcTime`]
+    /// Build a new [`UtcTime`]
     ///
     /// `nanos` will be normalized to a values less than `1_000_000_000`, the number of nanoseconds in a second.
     /// If the resulting number of seconds will exceed [`i64::MAX`], [`None`] is returned.
@@ -231,13 +238,13 @@ impl UtcTime {
         const NANOS_PER_SEC: u32 = 1_000_000_000;
 
         if nanos < NANOS_PER_SEC {
-            return Some(unsafe { Self::create(secs, nanos) });
+            return Some(unsafe { Self::new_unchecked(secs, nanos) });
         }
 
         let extra_seconds = nanos / NANOS_PER_SEC;
         let nanos = nanos % NANOS_PER_SEC;
         match secs.checked_add(extra_seconds as i64) {
-            Some(secs) => Some(unsafe { Self::create(secs, nanos) }),
+            Some(secs) => Some(unsafe { Self::new_unchecked(secs, nanos) }),
             None => None,
         }
     }
@@ -284,7 +291,7 @@ impl UtcTime {
             _ => return None,
         };
         let nanos = value.subsec_nanos();
-        Some(unsafe { Self::create(secs, nanos) })
+        Some(unsafe { Self::new_unchecked(secs, nanos) })
     }
 
     /// Total number of whole seconds since epoch (1970-01-01 in UTC)
@@ -457,6 +464,83 @@ impl UtcTime {
     }
 }
 
+impl fmt::Display for UtcTime {
+    #[inline]
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{}.{:09}", self.secs, self.nanos)
+    }
+}
+
+impl TryFrom<&str> for UtcTime {
+    type Error = ConversionError;
+
+    fn try_from(value: &str) -> Result<Self, Self::Error> {
+        if matches!(value, "" | ".") || !value.is_ascii() {
+            return Err(ConversionError);
+        }
+
+        // Only present since 1.52:
+        // let (secs, nanos) = value.split_once('.').unwrap_or((value, ""));
+
+        let (secs, nanos) = match value
+            .as_bytes()
+            .iter()
+            .enumerate()
+            .find(|(_, &c)| c == b'.')
+        {
+            Some((idx, _)) => unsafe {
+                // SAFETY: we checked that `value` is ASCII, and we know that the index is valid
+                (value.get_unchecked(..idx), value.get_unchecked(idx + 1..))
+            },
+            None => (value, ""),
+        };
+
+        let secs = match secs {
+            "" => 0,
+            secs => secs.parse().map_err(|_| ConversionError)?,
+        };
+        let nanos = match nanos {
+            "" => 0,
+            nanos => {
+                let (nanos, factor) = if nanos.len() <= 9 {
+                    let factor = match nanos.len() {
+                        8 => 10,
+                        7 => 100,
+                        6 => 1000,
+                        5 => 10000,
+                        4 => 100_000,
+                        3 => 1_000_000,
+                        2 => 10_000_000,
+                        1 => 100_000_000,
+                        _ => 1,
+                    };
+                    (nanos, factor)
+                } else {
+                    // SAFETY: We checked that `value` is ASCII, so every substring is ASCII,
+                    //         and we just checked that `nanos` is longer that 9 bytes.
+                    let nanos = unsafe { nanos.get_unchecked(..9) };
+                    let suffix = unsafe { nanos.get_unchecked(9..) };
+                    if suffix.as_bytes().iter().any(|c| !matches!(c, b'0'..=b'9')) {
+                        return Err(ConversionError);
+                    }
+                    (nanos, 1)
+                };
+                nanos.parse::<u32>().map_err(|_| ConversionError)? * factor
+            },
+        };
+        Ok(unsafe { Self::new_unchecked(secs, nanos) })
+    }
+}
+
+impl core::str::FromStr for UtcTime {
+    type Err = ConversionError;
+
+    #[inline]
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        s.try_into()
+    }
+}
+
 /// Get the current unix time, seconds since 1970-01-01 in UTC
 ///
 /// Please see the [module level documentation](crate) for more information.
@@ -570,22 +654,3 @@ impl fmt::Display for ConversionError {
 #[cfg(feature = "std")]
 #[cfg_attr(docsrs, doc(cfg(feature = "std")))]
 impl std::error::Error for ConversionError {}
-
-#[cfg(test)]
-#[test]
-fn test_if_can_call() {
-    let _ = utcnow().unwrap();
-}
-
-#[cfg(test)]
-#[test]
-fn test_layout() {
-    use core::mem;
-
-    assert_eq!(mem::align_of::<u32>(), mem::align_of::<U30>());
-    assert_eq!(mem::size_of::<u32>(), mem::size_of::<U30>());
-    assert_eq!(mem::size_of::<u32>(), mem::size_of::<Option<U30>>());
-
-    assert_eq!(mem::size_of::<UtcTime>(), mem::size_of::<Option<UtcTime>>());
-    assert_eq!(mem::size_of::<UtcTime>(), mem::size_of::<Result<UtcTime>>());
-}
