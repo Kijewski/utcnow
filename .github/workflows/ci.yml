@@ -95,7 +95,7 @@ jobs:
       - run: cargo test --workspace -- --show-output
       - run: cargo test --workspace --no-default-features -- --show-output
       - run: cargo run --example minimal && date +%s.%9N
-      - run: cargo run --example minimal --no-default-features & date +%s.%9N
+      - run: cargo run --example minimal --no-default-features && date +%s.%9N
 
   test-wasm:
     runs-on: ubuntu-20.04
