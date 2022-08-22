@@ -72,6 +72,8 @@ jobs:
       matrix:
         toolchain:
           - "1.48"
+          - "1.56"
+          - "1.58"
           - stable
           - nightly
         platform:

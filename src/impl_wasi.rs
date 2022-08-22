@@ -13,7 +13,7 @@ pub(crate) fn utcnow() -> Result<UtcTime> {
     let nanos = unsafe { clock_time_get(CLOCKID_REALTIME, 100) }.map_err(OsError)?;
     let secs = nanos.div_euclid(1_000_000_000) as i64;
     let nanos = nanos.rem_euclid(1_000_000_000) as u32;
-    Ok(unsafe { UtcTime::create(secs, nanos) })
+    Ok(unsafe { UtcTime::new_unchecked(secs, nanos) })
 }
 
 #[derive(Debug, Clone, Copy)]

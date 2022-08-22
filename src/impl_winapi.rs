@@ -22,7 +22,7 @@ pub(crate) fn utcnow() -> Result<UtcTime> {
     // epoch is Jan. 1, 1601: 134774 days to Jan. 1, 1970
     let secs = now.div_euclid(10_000_000) as i64 - 11644473600;
     let nanos = now.rem_euclid(10_000_000) as u32 * 100;
-    Ok(unsafe { UtcTime::create(secs, nanos) })
+    Ok(unsafe { UtcTime::new_unchecked(secs, nanos) })
 }
 
 #[derive(Debug, Clone, Copy)]
