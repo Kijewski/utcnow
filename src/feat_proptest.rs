@@ -1,3 +1,5 @@
+#![cfg_attr(docsrs, doc(cfg(feature = "proptest")))]
+
 use proptest::arbitrary::{Arbitrary, StrategyFor};
 use proptest::prelude::any_with;
 use proptest::strategy::{Map, Strategy};

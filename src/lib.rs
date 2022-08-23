@@ -92,6 +92,8 @@
 //!
 //! * `quickcheck`, which implements the [`quickcheck::Arbitrary`] trait for [`UtcTime`].
 //!
+//! * `rkyv`, which implements the [`rkyv::Archive`], [`rkyv::Serialize`], and [`rkyv::Deserialize`] for [`UtcTime`].
+//!
 
 #![cfg_attr(not(any(test, feature = "std")), no_std)]
 #![cfg_attr(docsrs, feature(doc_cfg))]
@@ -117,6 +119,8 @@ mod feat_arbitrary;
 mod feat_proptest;
 #[cfg(feature = "quickcheck")]
 mod feat_quickcheck;
+#[cfg(feature = "rkyv")]
+mod feat_rkyv;
 #[cfg(feature = "serde")]
 mod feat_serde;
 #[cfg_attr(
@@ -654,3 +658,24 @@ impl fmt::Display for ConversionError {
 #[cfg(feature = "std")]
 #[cfg_attr(docsrs, doc(cfg(feature = "std")))]
 impl std::error::Error for ConversionError {}
+
+trait AutoTraits {
+    const AUTO_TRAITS: bool;
+}
+
+impl<T> AutoTraits for T
+where
+    T: 'static + Send + Sync + Unpin,
+    // rustc 1.56+:
+    // T: core::panic::RefUnwindSafe + core::panic::UnwindSafe,
+{
+    const AUTO_TRAITS: bool = true;
+}
+
+const _: bool = ConversionError::AUTO_TRAITS;
+const _: bool = Error::AUTO_TRAITS;
+const _: bool = Option::<U30>::AUTO_TRAITS;
+const _: bool = OsError::AUTO_TRAITS;
+const _: bool = Result::<U30>::AUTO_TRAITS;
+const _: bool = U30::AUTO_TRAITS;
+const _: bool = UtcTime::AUTO_TRAITS;

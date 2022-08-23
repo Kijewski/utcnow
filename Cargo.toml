@@ -22,6 +22,7 @@ const_fn = "0.4.9"
 arbitrary = { version = "1", default-features = false, optional = true }
 proptest = { version = "1", default-features = false, optional = true, features = ["std"] }
 quickcheck = { version = "1", default-features = false, optional = true }
+rkyv = { version = "0.7", optional = true }
 serde = { version = "1", default-features = false, optional = true }
 
 [dev-dependencies]

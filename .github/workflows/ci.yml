@@ -348,7 +348,7 @@ jobs:
         uses: ./.github/actions/setup-rust
 
       - run: cargo hack --version || cargo install cargo-hack --force
-      - run: cargo hack test --feature-powerset --include-features arbitrary,proptest,quickcheck,serde
+      - run: cargo hack test --feature-powerset --include-features arbitrary,proptest,quickcheck,rkyv,serde
 
   powerset-minimal-versions:
     runs-on: ubuntu-20.04
@@ -365,4 +365,4 @@ jobs:
         env:
           RUSTC_BOOTSTRAP: 1
 
-      - run: cargo hack test --feature-powerset --include-features arbitrary,proptest,quickcheck,serde
+      - run: cargo hack test --feature-powerset --include-features arbitrary,proptest,quickcheck,rkyv,serde

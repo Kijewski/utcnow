@@ -6,6 +6,8 @@
   ([#9](https://github.com/Kijewski/utcnow/pull/9))
 * Add `UtcTime::new_unchecked()`
   ([#9](https://github.com/Kijewski/utcnow/pull/9))
+* Add `rkyv` feature to implement `rkyv::Archive`, `rkyv::Serialize`, and `rkyv::Deserialize` for `UtcTime`
+  ([#10](https://github.com/Kijewski/utcnow/pull/10))
 
 ## 0.2.0 (2022-08-04)
 

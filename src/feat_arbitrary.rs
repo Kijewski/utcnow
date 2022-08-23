@@ -1,3 +1,5 @@
+#![cfg_attr(docsrs, doc(cfg(feature = "arbitrary")))]
+
 use arbitrary::{Arbitrary, Result, Unstructured};
 
 use crate::UtcTime;
