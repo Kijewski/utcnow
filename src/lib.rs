@@ -94,6 +94,8 @@
 //!
 //! * `rkyv`, which implements the [`rkyv::Archive`], [`rkyv::Serialize`], and [`rkyv::Deserialize`] for [`UtcTime`].
 //!
+//! * `castaway`, which implements the [`castaway::LifetimeFree`] trait for [`UtcTime`].
+//!
 
 #![cfg_attr(not(any(test, feature = "std")), no_std)]
 #![cfg_attr(docsrs, feature(doc_cfg))]
@@ -115,6 +117,8 @@
 pub mod changelog;
 #[cfg(feature = "arbitrary")]
 mod feat_arbitrary;
+#[cfg(feature = "castaway")]
+mod feat_castaway;
 #[cfg(feature = "proptest")]
 mod feat_proptest;
 #[cfg(feature = "quickcheck")]

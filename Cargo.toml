@@ -20,9 +20,11 @@ const_fn = "0.4.9"
 
 # Optional features:
 arbitrary = { version = "1", default-features = false, optional = true }
+castaway = { version = "0.2", default-features = false, optional = true }
 proptest = { version = "1", default-features = false, optional = true, features = ["std"] }
 quickcheck = { version = "1", default-features = false, optional = true }
-rkyv = { version = "0.7", optional = true }
+# Versions up until 0.7.26 are broken.
+rkyv = { version = "0.7.27", optional = true }
 serde = { version = "1", default-features = false, optional = true }
 
 [dev-dependencies]

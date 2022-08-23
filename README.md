@@ -74,4 +74,7 @@ lower platforms will not be indicated as a breaking change to the semver version
 
 * `rkyv`, which implements the [`rkyv::Archive`](https://docs.rs/rkyv/0.7/rkyv/trait.Archive.html),
   [`rkyv::Serialize`](https://docs.rs/rkyv/0.7/rkyv/trait.Serialize.html),
-  and [`rkyv::Deserialize`](https://docs.rs/rkyv/0.7/rkyv/trait.Deserialize.html) for [`UtcTime`].
+  and [`rkyv::Deserialize`](https://docs.rs/rkyv/0.7/rkyv/trait.Deserialize.html) for `UtcTime`.
+
+* `castaway`, which implements the [`castaway::LifetimeFree`](https://docs.rs/castaway/0.2/castaway/trait.LifetimeFree.html)
+  trait for `UtcTime`.
