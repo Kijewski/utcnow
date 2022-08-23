@@ -1,3 +1,5 @@
+#![cfg_attr(docsrs, doc(cfg(feature = "serde")))]
+
 use serde::de::Error;
 use serde::{Deserialize, Deserializer, Serialize};
 

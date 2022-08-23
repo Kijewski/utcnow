@@ -1,3 +1,5 @@
+#![cfg_attr(docsrs, doc(cfg(feature = "quickcheck")))]
+
 use quickcheck::{Arbitrary, Gen};
 
 use crate::UtcTime;
