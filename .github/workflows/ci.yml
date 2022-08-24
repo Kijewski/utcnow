@@ -182,7 +182,6 @@ jobs:
         id: actions-rs
         uses: ./.github/actions/setup-rust
         with:
-          key: cross-run-test
           toolchain: stable
           target: ${{ matrix.target }}
           components: clippy
@@ -213,7 +212,6 @@ jobs:
         id: actions-rs
         uses: ./.github/actions/setup-rust
         with:
-          key: cross-no-execute
           toolchain: stable
           target: ${{ matrix.target }}
           components: clippy
@@ -243,7 +241,6 @@ jobs:
         id: actions-rs
         uses: ./.github/actions/setup-rust
         with:
-          key: cross-macos
           toolchain: stable
           target: ${{ matrix.target }}
           components: clippy
@@ -272,7 +269,6 @@ jobs:
         id: actions-rs
         uses: ./.github/actions/setup-rust
         with:
-          key: cross-build-lib-only
           toolchain: stable
           target: ${{ matrix.target }}
           components: clippy
@@ -291,8 +287,6 @@ jobs:
 
       - name: Setup Rust
         uses: ./.github/actions/setup-rust
-        with:
-          key: minimal-versions
 
       - name: Update lockfile
         env:
@@ -310,10 +304,26 @@ jobs:
 
       - name: Setup Rust
         uses: ./.github/actions/setup-rust
-        with:
-          key: audit
 
-      - run: cargo update
+      - run: cargo generate-lockfile
+
+      - name: Audit
+        uses: actions-rs/audit-check@v1
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+  audit-minimal-versions:
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Setup Rust
+        uses: ./.github/actions/setup-rust
+
+      - run: cargo generate-lockfile -Zminimal-versions
+        env:
+          RUSTC_BOOTSTRAP: 1
 
       - name: Audit
         uses: actions-rs/audit-check@v1
@@ -366,3 +376,35 @@ jobs:
           RUSTC_BOOTSTRAP: 1
 
       - run: cargo hack test --feature-powerset --include-features arbitrary,proptest,quickcheck,rkyv,serde
+
+  deny:
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Setup Rust
+        uses: ./.github/actions/setup-rust
+
+      - run: cargo deny --version || cargo install cargo-deny --force
+
+      - run: cargo generate-lockfile
+
+      - run: cargo deny check all
+
+  deny-minimal-versions:
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Setup Rust
+        uses: ./.github/actions/setup-rust
+
+      - run: cargo deny --version || cargo install cargo-deny --force
+
+      - run: cargo generate-lockfile -Zminimal-versions
+        env:
+          RUSTC_BOOTSTRAP: 1
+
+      - run: cargo deny check all
