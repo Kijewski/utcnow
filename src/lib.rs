@@ -58,6 +58,7 @@
 //! * Android
 //! * Emscripten
 //! * FreeBSD
+//! * Haiku
 //! * Illumos
 //! * Linux
 //! * Linux with Musl
@@ -145,6 +146,7 @@ mod feat_serde;
         target_os = "darwin",
         target_os = "emscripten",
         target_os = "fuchsia",
+        target_os = "haiku",
         target_os = "illumos",
         target_os = "netbsd",
         target_os = "solaris",
