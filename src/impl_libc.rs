@@ -16,10 +16,10 @@ pub(crate) fn utcnow() -> Result<UtcTime> {
     };
     let result = unsafe { libc::clock_gettime(libc::CLOCK_REALTIME, &mut now) };
     if result != 0 {
-        #[cfg(not(target_os = "emscripten"))]
+        #[cfg(not(any(target_os = "emscripten", target_os = "haiku")))]
         return Err(Error(OsError(errno::errno().0)));
 
-        #[cfg(target_os = "emscripten")]
+        #[cfg(any(target_os = "emscripten", target_os = "haiku"))]
         return Err(Error(OsError()));
     }
 
@@ -29,11 +29,11 @@ pub(crate) fn utcnow() -> Result<UtcTime> {
 }
 
 #[derive(Debug, Clone, Copy)]
-pub(crate) struct OsError(#[cfg(not(target_os = "emscripten"))] i32);
+pub(crate) struct OsError(#[cfg(not(any(target_os = "emscripten", target_os = "haiku")))] i32);
 
 #[allow(trivial_casts)] // msg is already `*mut u8` on thumbv7neon-linux-androideabi
 impl fmt::Display for OsError {
-    #[cfg(not(target_os = "emscripten"))]
+    #[cfg(not(any(target_os = "emscripten", target_os = "haiku")))]
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match unsafe { libc::strerror(self.0) } {
             msg if msg.is_null() => {
@@ -51,7 +51,7 @@ impl fmt::Display for OsError {
         }
     }
 
-    #[cfg(target_os = "emscripten")]
+    #[cfg(any(target_os = "emscripten", target_os = "haiku"))]
     #[inline]
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         f.write_str("could not query clock_gettime()")

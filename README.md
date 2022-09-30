@@ -37,6 +37,7 @@ If you know how to implement another target, then please open a [pull request](h
 * Android
 * Emscripten
 * FreeBSD
+* Haiku
 * Illumos
 * Linux
 * Linux with Musl
