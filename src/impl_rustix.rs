@@ -11,6 +11,7 @@ pub(crate) const INFALLIBLE: bool = true;
 #[allow(trivial_casts)]
 #[allow(clippy::cast_possible_truncation)]
 #[allow(clippy::cast_sign_loss)]
+#[allow(clippy::unnecessary_cast)]
 #[allow(clippy::unnecessary_wraps)]
 pub(crate) fn utcnow() -> Result<UtcTime> {
     let now = clock_gettime(ClockId::Realtime);

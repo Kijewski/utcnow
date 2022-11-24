@@ -527,10 +527,10 @@ impl TryFrom<&str> for UtcTime {
                     (nanos, factor)
                 } else {
                     // SAFETY: We checked that `value` is ASCII, so every substring is ASCII,
-                    //         and we just checked that `nanos` is longer that 9 bytes.
+                    //         and we just checked that `nanos` is longer than 9 bytes.
                     let nanos = unsafe { nanos.get_unchecked(..9) };
                     let suffix = unsafe { nanos.get_unchecked(9..) };
-                    if suffix.as_bytes().iter().any(|c| !matches!(c, b'0'..=b'9')) {
+                    if suffix.as_bytes().iter().any(|c| !c.is_ascii_digit()) {
                         return Err(ConversionError);
                     }
                     (nanos, 1)
