@@ -1,5 +1,14 @@
 # Changes between the versions
 
+## 0.2.2 (2022-11-24)
+
+* Fix clippy warnings, update `rustix` version
+  ([#16](https://github.com/Kijewski/utcnow/pull/16))
+* Use `autocfg` to tell rustc version
+  ([#17](https://github.com/Kijewski/utcnow/pull/17))
+* Various CI fixes
+  ([#18](https://github.com/Kijewski/utcnow/pull/18))
+
 ## 0.2.1 (2022-08-23)
 
 * Implement `Display`, `FromStr`, and `TryFrom<&str>` for `UtcTime`
