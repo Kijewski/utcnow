@@ -665,6 +665,7 @@ impl fmt::Display for ConversionError {
 #[cfg_attr(docsrs, doc(cfg(feature = "std")))]
 impl std::error::Error for ConversionError {}
 
+#[cfg(test)]
 const _: () = {
     trait NoSuchTrait {}
 
