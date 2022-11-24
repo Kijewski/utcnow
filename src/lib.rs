@@ -665,23 +665,37 @@ impl fmt::Display for ConversionError {
 #[cfg_attr(docsrs, doc(cfg(feature = "std")))]
 impl std::error::Error for ConversionError {}
 
-trait AutoTraits {
-    const AUTO_TRAITS: bool;
-}
+const _: () = {
+    trait NoSuchTrait {}
 
-impl<T> AutoTraits for T
-where
-    T: 'static + Send + Sync + Unpin,
-    // rustc 1.56+:
-    // T: core::panic::RefUnwindSafe + core::panic::UnwindSafe,
-{
-    const AUTO_TRAITS: bool = true;
-}
+    impl<T: ?Sized> NoSuchTrait for T {}
 
-const _: bool = ConversionError::AUTO_TRAITS;
-const _: bool = Error::AUTO_TRAITS;
-const _: bool = Option::<U30>::AUTO_TRAITS;
-const _: bool = OsError::AUTO_TRAITS;
-const _: bool = Result::<U30>::AUTO_TRAITS;
-const _: bool = U30::AUTO_TRAITS;
-const _: bool = UtcTime::AUTO_TRAITS;
+    #[cfg(has_core__panic__RefUnwindSafe)]
+    use core::panic::RefUnwindSafe;
+    #[cfg(has_core__panic__UnwindSafe)]
+    use core::panic::UnwindSafe;
+
+    #[cfg(not(has_core__panic__RefUnwindSafe))]
+    use NoSuchTrait as RefUnwindSafe;
+    #[cfg(not(has_core__panic__UnwindSafe))]
+    use NoSuchTrait as UnwindSafe;
+
+    trait AutoTraits {
+        const AUTO_TRAITS: bool;
+    }
+
+    impl<T> AutoTraits for T
+    where
+        T: 'static + RefUnwindSafe + Send + Sync + Unpin + UnwindSafe,
+    {
+        const AUTO_TRAITS: bool = true;
+    }
+
+    const _: bool = ConversionError::AUTO_TRAITS;
+    const _: bool = Error::AUTO_TRAITS;
+    const _: bool = Option::<U30>::AUTO_TRAITS;
+    const _: bool = OsError::AUTO_TRAITS;
+    const _: bool = Result::<U30>::AUTO_TRAITS;
+    const _: bool = U30::AUTO_TRAITS;
+    const _: bool = UtcTime::AUTO_TRAITS;
+};
