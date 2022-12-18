@@ -223,11 +223,6 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
 
-      # See https://github.com/strawlab/iana-time-zone/issues/80
-      # and https://github.com/rust-lang/rust/pull/85806
-      - run: echo '[build]' > Cross.toml && echo 'build-std = true' >> Cross.toml
-        if: matrix.toolchain == 'nightly'
-
       - name: Install Rust
         id: actions-rs
         uses: ./.github/actions/setup-rust

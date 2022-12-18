@@ -9,6 +9,7 @@ pub(crate) const INFALLIBLE: bool = false;
 #[allow(clippy::cast_lossless)]
 #[allow(clippy::cast_possible_truncation)]
 #[allow(clippy::cast_sign_loss)]
+#[allow(clippy::unnecessary_cast)]
 pub(crate) fn utcnow() -> Result<UtcTime> {
     let mut now = libc::timespec {
         tv_sec: 0,
@@ -23,7 +24,7 @@ pub(crate) fn utcnow() -> Result<UtcTime> {
         return Err(Error(OsError()));
     }
 
-    let secs = now.tv_sec as i64; // tv_sec is i32 is emscripten
+    let secs = now.tv_sec as i64; // tv_sec is i32 in emscripten
     let nanos = now.tv_nsec as u32;
     Ok(unsafe { UtcTime::new_unchecked(secs, nanos) })
 }
