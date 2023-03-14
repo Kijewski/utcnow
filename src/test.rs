@@ -1,6 +1,8 @@
 use super::{utcnow, Result, UtcTime, U30};
 
 #[test]
+#[allow(unknown_lints)]
+#[allow(clippy::let_underscore_untyped)]
 fn test_if_can_call() {
     let _ = utcnow().unwrap();
 }
