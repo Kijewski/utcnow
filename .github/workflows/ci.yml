@@ -174,7 +174,9 @@ jobs:
           target: ${{ matrix.target }}
           components: clippy
 
-      - run: cross rustc --target ${{ matrix.target }} -- --version || cargo +stable install cross --force
+      - run: curl --location --silent --show-error --fail https://github.com/cargo-bins/cargo-quickinstall/releases/download/cross-0.2.5-x86_64-unknown-linux-gnu/cross-0.2.5-x86_64-unknown-linux-gnu.tar.gz | tar -xzvvf - -C $HOME/.cargo/bin
+      - run: chmod +x $HOME/.cargo/bin/cross
+
       - run: cross clippy --target ${{ matrix.target }} --package utcnow --all-targets -- -D warnings
       - run: cross clippy --target ${{ matrix.target }} --package utcnow --all-targets -- -D clippy::pedantic
       - run: cross test --target ${{ matrix.target }} --workspace -- --show-output
@@ -201,12 +203,15 @@ jobs:
           target: ${{ matrix.target }}
           components: clippy
 
-      - run: cargo clippy --target ${{ matrix.target }} --package utcnow --all-targets -- -D warnings
-      - run: cargo clippy --target ${{ matrix.target }} --package utcnow --all-targets -- -D clippy::pedantic
-      - run: cargo test --target ${{ matrix.target }} --workspace -- --show-output
-      - run: cargo test --target ${{ matrix.target }} --workspace --no-default-features -- --show-output
-      - run: cargo run --example minimal && date +%s.%9N
-      - run: cargo run --example minimal --no-default-features && date +%s.%9N
+      - run: curl --location --silent --show-error --fail https://github.com/cargo-bins/cargo-quickinstall/releases/download/cross-0.2.5-x86_64-unknown-linux-gnu/cross-0.2.5-x86_64-unknown-linux-gnu.tar.gz | tar -xzvvf - -C $HOME/.cargo/bin
+      - run: chmod +x $HOME/.cargo/bin/cross
+
+      - run: cross clippy --target ${{ matrix.target }} --package utcnow --all-targets -- -D warnings
+      - run: cross clippy --target ${{ matrix.target }} --package utcnow --all-targets -- -D clippy::pedantic
+      - run: cross test --target ${{ matrix.target }} --workspace -- --show-output
+      - run: cross test --target ${{ matrix.target }} --workspace --no-default-features -- --show-output
+      - run: cross run --target ${{ matrix.target }} --example minimal && date +%s.%9N
+      - run: cross run --target ${{ matrix.target }} --example minimal --no-default-features && date +%s.%9N
 
   cross-no-execute:
     strategy:
@@ -215,8 +220,12 @@ jobs:
         target:
           - thumbv7neon-linux-androideabi
           - x86_64-linux-android
+          - x86_64-pc-solaris
           - x86_64-unknown-freebsd
+          - x86_64-unknown-fuchsia
+          - x86_64-unknown-illumos
           - x86_64-unknown-netbsd
+          - x86_64-unknown-redox
 
     runs-on: ubuntu-20.04
     steps:
@@ -228,14 +237,16 @@ jobs:
         uses: ./.github/actions/setup-rust
         with:
           toolchain: stable
-          target: ${{ matrix.target }}
           components: clippy
 
-      - run: cross rustc --target ${{ matrix.target }} -- --version || cargo +stable install cross --force
+      - run: rustup target add ${{ matrix.target }}
+      - run: curl --location --silent --show-error --fail https://github.com/cargo-bins/cargo-quickinstall/releases/download/cross-0.2.5-x86_64-unknown-linux-gnu/cross-0.2.5-x86_64-unknown-linux-gnu.tar.gz | tar -xzvvf - -C $HOME/.cargo/bin
+      - run: chmod +x $HOME/.cargo/bin/cross
+
       - run: cross clippy --target ${{ matrix.target }} --package utcnow --all-targets -- -D warnings
       - run: cross clippy --target ${{ matrix.target }} --package utcnow --all-targets -- -D clippy::pedantic
-      - run: cross build --target ${{ matrix.target }} --examples
-      - run: cross build --target ${{ matrix.target }} --examples --no-default-features
+      - run: cross build --target ${{ matrix.target }} --package utcnow --lib
+      - run: cross build --target ${{ matrix.target }} --package utcnow --lib --no-default-features
 
   cross-ios:
     strategy:
@@ -260,39 +271,13 @@ jobs:
           target: ${{ matrix.target }}
           components: clippy
 
-      - run: cargo clippy --target ${{ matrix.target }} --package utcnow --all-targets -- -D warnings
-      - run: cargo clippy --target ${{ matrix.target }} --package utcnow --all-targets -- -D clippy::pedantic
-      - run: cargo build --target ${{ matrix.target }} --examples
-      - run: cargo build --target ${{ matrix.target }} --examples --no-default-features
+      - run: curl --location --silent --show-error --fail https://github.com/cargo-bins/cargo-quickinstall/releases/download/cross-0.2.5/cross-0.2.5-x86_64-apple-darwin.tar.gz | tar -xzvvf - -C $HOME/.cargo/bin
+      - run: chmod +x $HOME/.cargo/bin/cross
 
-  cross-build-lib-only:
-    strategy:
-      fail-fast: false
-      matrix:
-        target:
-          - x86_64-fuchsia
-          - x86_64-pc-solaris
-          - x86_64-unknown-illumos
-          - x86_64-unknown-redox
-
-    runs-on: ubuntu-20.04
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-
-      - name: Install Rust
-        id: actions-rs
-        uses: ./.github/actions/setup-rust
-        with:
-          toolchain: stable
-          target: ${{ matrix.target }}
-          components: clippy
-
-      - run: cross rustc --target ${{ matrix.target }} -- --version || cargo +stable install cross --force
       - run: cross clippy --target ${{ matrix.target }} --package utcnow --all-targets -- -D warnings
       - run: cross clippy --target ${{ matrix.target }} --package utcnow --all-targets -- -D clippy::pedantic
-      - run: cross build --target ${{ matrix.target }} --workspace
-      - run: cross build --target ${{ matrix.target }} --workspace --no-default-features
+      - run: cross build --target ${{ matrix.target }} --examples
+      - run: cross build --target ${{ matrix.target }} --examples --no-default-features
 
   audit:
     runs-on: ubuntu-20.04

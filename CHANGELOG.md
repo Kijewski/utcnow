@@ -1,5 +1,10 @@
 # Changes between the versions
 
+## 0.2.3 (2023-03-14)
+
+* Bump dependency versions
+  ([#22](https://github.com/Kijewski/utcnow/pull/22))
+
 ## 0.2.2 (2022-11-24)
 
 * Fix clippy warnings, update `rustix` version
