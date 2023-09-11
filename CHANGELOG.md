@@ -1,5 +1,10 @@
 # Changes between the versions
 
+## 0.2.3 (2023-09-11)
+
+* Bump dependency versions
+* Fix clippy warning
+
 ## 0.2.3 (2023-03-14)
 
 * Bump dependency versions
