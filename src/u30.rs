@@ -69,7 +69,7 @@ impl cmp::PartialEq for U30 {
 impl cmp::PartialOrd for U30 {
     #[inline]
     fn partial_cmp(&self, other: &Self) -> Option<cmp::Ordering> {
-        self.get().partial_cmp(&other.get())
+        Some(self.cmp(other))
     }
 }
 
