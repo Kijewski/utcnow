@@ -222,6 +222,10 @@ impl UtcTime {
     ///
     /// If the value for `nanos` exceeds `1_000_000_000`, your program is malformed.
     /// Expect undefined behavior!
+    ///
+    /// # Safety
+    ///
+    /// Expect random and impossible to debug runtime errors if the input is not in range.
     #[inline]
     #[must_use]
     #[const_fn::const_fn("1.56")]
