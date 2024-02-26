@@ -434,6 +434,10 @@ impl UtcTime {
 
     /// Convert the timestamp to a [Duration] since epoch (1970-01-01 in UTC)
     ///
+    /// # Errors
+    ///
+    /// Fails if the timestamp lies before 1970-01-01 in UTC.
+    ///
     /// # Example
     ///
     /// ```rust
