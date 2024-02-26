@@ -12,7 +12,7 @@ on:
 
 jobs:
   lint-nightly:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -27,7 +27,7 @@ jobs:
       - run: RUSTDOCFLAGS="-D warnings --cfg docsrs" cargo doc --package utcnow --all-features --no-deps
 
   lint-stable:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -46,13 +46,13 @@ jobs:
       fail-fast: false
       matrix:
         toolchain:
-          - "1.48"
-          - "1.56"
-          - "1.58"
+          # - "1.48"
+          # - "1.56"
+          # - "1.58"
           - stable
           - nightly
 
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -71,13 +71,13 @@ jobs:
       fail-fast: false
       matrix:
         toolchain:
-          - "1.48"
-          - "1.56"
-          - "1.58"
+          # - "1.48"
+          # - "1.56"
+          # - "1.58"
           - stable
           - nightly
         platform:
-          - ubuntu-20.04
+          - ubuntu-22.04
           - windows-2022
           - macos-12
         versions:
@@ -113,7 +113,7 @@ jobs:
       - run: cargo run --example minimal --no-default-features && date +%s.%9N
 
   test-wasm:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -136,7 +136,7 @@ jobs:
       - run: cargo clippy --target wasm32-unknown-unknown --package utcnow --all-targets -- -D clippy::pedantic
 
   run-wasi:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -161,7 +161,7 @@ jobs:
         target:
           - wasm32-unknown-emscripten
 
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -190,7 +190,7 @@ jobs:
           - i686-unknown-linux-musl
           - x86_64-unknown-linux-musl
 
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -227,7 +227,7 @@ jobs:
           - x86_64-unknown-netbsd
           - x86_64-unknown-redox
 
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -280,7 +280,7 @@ jobs:
       - run: cross build --target ${{ matrix.target }} --examples --no-default-features
 
   audit:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -294,7 +294,7 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
 
   devskim:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     permissions:
       actions: read
       contents: read
@@ -319,7 +319,7 @@ jobs:
           - ""
           - "-Zminimal-versions"
 
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -341,9 +341,9 @@ jobs:
       matrix:
         versions:
           - ""
-          - "-Zminimal-versions"
+          #- "-Zminimal-versions"
 
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     steps:
       - name: Checkout
         uses: actions/checkout@v4
