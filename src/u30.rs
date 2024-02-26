@@ -27,6 +27,7 @@ impl U30 {
 
     /// SAFETY: the caller has to ensure that the value is in range
     #[allow(unconditional_panic)]
+    #[allow(clippy::out_of_bounds_indexing)]
     #[inline]
     #[const_fn::const_fn("1.56")]
     pub(crate) const unsafe fn new_unchecked(value: u32) -> Self {
