@@ -255,8 +255,8 @@ impl UtcTime {
             return Some(unsafe { Self::new_unchecked(secs, nanos) });
         }
 
-        let extra_seconds = nanos / NANOS_PER_SEC;
-        let nanos = nanos % NANOS_PER_SEC;
+        let extra_seconds = nanos.div_euclid(NANOS_PER_SEC);
+        let nanos = nanos.rem_euclid(NANOS_PER_SEC);
         match secs.checked_add(extra_seconds as i64) {
             Some(secs) => Some(unsafe { Self::new_unchecked(secs, nanos) }),
             None => None,
