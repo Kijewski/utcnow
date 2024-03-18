@@ -1,6 +1,6 @@
 # Changes between the versions
 
-## unreleased
+## 0.2.5 (2024-03-18)
 
 * Bump dependency versions
 * Fix clippy warning
