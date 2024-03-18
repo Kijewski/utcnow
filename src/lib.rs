@@ -675,27 +675,13 @@ impl std::error::Error for ConversionError {}
 
 #[cfg(test)]
 const _: () = {
-    trait NoSuchTrait {}
-
-    impl<T: ?Sized> NoSuchTrait for T {}
-
-    #[cfg(has_core__panic__RefUnwindSafe)]
-    use core::panic::RefUnwindSafe;
-    #[cfg(has_core__panic__UnwindSafe)]
-    use core::panic::UnwindSafe;
-
-    #[cfg(not(has_core__panic__RefUnwindSafe))]
-    use NoSuchTrait as RefUnwindSafe;
-    #[cfg(not(has_core__panic__UnwindSafe))]
-    use NoSuchTrait as UnwindSafe;
-
     trait AutoTraits {
         const AUTO_TRAITS: bool;
     }
 
     impl<T> AutoTraits for T
     where
-        T: 'static + RefUnwindSafe + Send + Sync + Unpin + UnwindSafe,
+        T: 'static + Send + Sized + Sync + Unpin,
     {
         const AUTO_TRAITS: bool = true;
     }

@@ -4,6 +4,7 @@
 
 * Bump dependency versions
 * Fix clippy warning
+* Remove useless build script
 
 ## 0.2.4 (2023-09-11)
 
