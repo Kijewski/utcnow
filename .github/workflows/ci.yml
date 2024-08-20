@@ -12,7 +12,7 @@ on:
 
 jobs:
   lint-nightly:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -27,7 +27,7 @@ jobs:
       - run: RUSTDOCFLAGS="-D warnings --cfg docsrs" cargo doc --package utcnow --all-features --no-deps
 
   lint-stable:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -49,7 +49,7 @@ jobs:
           - stable
           - nightly
 
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -71,9 +71,9 @@ jobs:
           - stable
           - nightly
         platform:
-          - ubuntu-22.04
-          - windows-2022
-          - macos-12
+          - ubuntu-latest
+          - windows-latest
+          - macos-latest
         versions:
           - ""
           - "-Zminimal-versions"
@@ -100,7 +100,7 @@ jobs:
       - run: cargo run --example minimal --no-default-features && date +%s.%9N
 
   test-wasm:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -120,14 +120,14 @@ jobs:
       - name: Install cargo-deny
         uses: taiki-e/install-action@v2
         with:
-          tool: wasm-pack@0.12.1
+          tool: wasm-pack@0.13.0
 
       - run: wasm-pack test --node && date +%s.%9N
       - run: cargo clippy --target wasm32-unknown-unknown --package utcnow --all-targets -- -D warnings
       - run: cargo clippy --target wasm32-unknown-unknown --package utcnow --all-targets -- -D clippy::pedantic
 
   run-wasi:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -139,10 +139,10 @@ jobs:
           targets: wasm32-wasi
           components: clippy
 
-      - name: Install cargo-deny
+      - name: Install wasmtime
         uses: taiki-e/install-action@v2
         with:
-          tool: wasmtime-cli@18.0.1
+          tool: wasmtime-cli@22.0.0
 
       - run: cargo clippy --target wasm32-wasi --package utcnow --all-targets -- -D warnings
       - run: cargo clippy --target wasm32-wasi --package utcnow --all-targets -- -D clippy::pedantic
@@ -156,7 +156,7 @@ jobs:
         target:
           - wasm32-unknown-emscripten
 
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -186,7 +186,7 @@ jobs:
           - i686-unknown-linux-musl
           - x86_64-unknown-linux-musl
 
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -224,7 +224,7 @@ jobs:
           - x86_64-unknown-netbsd
           - x86_64-unknown-redox
 
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -256,7 +256,7 @@ jobs:
           - x86_64-apple-darwin
           - x86_64-apple-ios
 
-    runs-on: macos-12
+    runs-on: macos-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -278,24 +278,8 @@ jobs:
       - run: cross build --target ${{ matrix.target }} --examples
       - run: cross build --target ${{ matrix.target }} --examples --no-default-features
 
-  audit:
-    runs-on: ubuntu-22.04
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Install rust
-        uses: dtolnay/rust-toolchain@master
-        with:
-          toolchain: stable
-
-      - name: Audit
-        uses: actions-rs/audit-check@v1
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-
   devskim:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
     permissions:
       actions: read
       contents: read
@@ -320,7 +304,7 @@ jobs:
           - ""
           - "-Zminimal-versions"
 
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -342,30 +326,7 @@ jobs:
       - run: cargo hack test --feature-powerset --include-features arbitrary,proptest,quickcheck,rkyv,serde
 
   deny:
-    strategy:
-      fail-fast: false
-      matrix:
-        versions:
-          - ""
-          #- "-Zminimal-versions"
-
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Install rust
-        uses: dtolnay/rust-toolchain@master
-        with:
-          toolchain: stable
-
-      - name: Install cargo-deny
-        uses: taiki-e/install-action@v2
-        with:
-          tool: cargo-deny@0.14.14
-
-      - run: cargo generate-lockfile ${{ matrix.versions }}
-        env:
-          RUSTC_BOOTSTRAP: 1
-
-      - run: cargo deny check all
+      - uses: actions/checkout@v4
+      - uses: EmbarkStudios/cargo-deny-action@v2

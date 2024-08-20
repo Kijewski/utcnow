@@ -1,5 +1,9 @@
 # Changes between the versions
 
+## 0.2.6 (2024-08-20)
+
+* Remove `target_os = "darwin"` as it's not a thing
+
 ## 0.2.5 (2024-03-18)
 
 * Bump dependency versions
