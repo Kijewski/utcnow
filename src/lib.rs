@@ -70,7 +70,6 @@
 //!
 //! **(Probably) supported, but not actually tested:**
 //!
-//! * Darwin
 //! * Dragonfly
 //! * Fuchsia
 //! * iOS
@@ -99,7 +98,7 @@
 //!
 
 #![cfg_attr(not(any(test, feature = "std")), no_std)]
-#![cfg_attr(docsrs, feature(doc_cfg))]
+#![cfg_attr(docsrs, feature(doc_cfg, doc_auto_cfg))]
 #![allow(unused_attributes)]
 #![warn(absolute_paths_not_starting_with_crate)]
 #![warn(elided_lifetimes_in_paths)]
@@ -115,6 +114,7 @@
 #![warn(unused_results)]
 
 #[cfg(docsrs)]
+#[cfg_attr(docsrs, doc(cfg(any())))]
 pub mod changelog;
 #[cfg(feature = "arbitrary")]
 mod feat_arbitrary;
@@ -143,7 +143,6 @@ mod feat_serde;
 #[cfg_attr(
     any(
         target_os = "android",
-        target_os = "darwin",
         target_os = "emscripten",
         target_os = "fuchsia",
         target_os = "haiku",
@@ -277,7 +276,6 @@ impl UtcTime {
     /// ```
     #[must_use]
     #[cfg(feature = "std")]
-    #[cfg_attr(docsrs, doc(cfg(feature = "std")))]
     pub fn from_system_time(value: SystemTime) -> Option<Self> {
         Self::from_duration(value.duration_since(SystemTime::UNIX_EPOCH).ok()?)
     }
@@ -472,9 +470,7 @@ impl UtcTime {
     /// let system_time = now.into_system_time().unwrap();
     /// # };
     /// ```
-    #[inline]
     #[cfg(feature = "std")]
-    #[cfg_attr(docsrs, doc(cfg(feature = "std")))]
     pub fn into_system_time(self) -> Result<SystemTime, ConversionError> {
         SystemTime::UNIX_EPOCH
             .checked_add(self.into_duration()?)
@@ -592,7 +588,6 @@ impl TryFrom<UtcTime> for Duration {
 }
 
 #[cfg(feature = "std")]
-#[cfg_attr(docsrs, doc(cfg(feature = "std")))]
 impl TryFrom<UtcTime> for SystemTime {
     type Error = ConversionError;
 
@@ -612,7 +607,6 @@ impl TryFrom<Duration> for UtcTime {
 }
 
 #[cfg(feature = "std")]
-#[cfg_attr(docsrs, doc(cfg(feature = "std")))]
 impl TryFrom<SystemTime> for UtcTime {
     type Error = ConversionError;
 
@@ -652,7 +646,6 @@ impl From<OsError> for Error {
 }
 
 #[cfg(feature = "std")]
-#[cfg_attr(docsrs, doc(cfg(feature = "std")))]
 impl std::error::Error for Error {}
 
 /// Could not convert from or to a [`UtcTime`]
@@ -670,7 +663,6 @@ impl fmt::Display for ConversionError {
 }
 
 #[cfg(feature = "std")]
-#[cfg_attr(docsrs, doc(cfg(feature = "std")))]
 impl std::error::Error for ConversionError {}
 
 #[cfg(test)]

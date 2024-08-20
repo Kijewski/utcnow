@@ -1,5 +1,3 @@
-#![cfg_attr(docsrs, doc(cfg(feature = "rkyv")))]
-
 use core::{cmp, fmt, mem};
 
 use rkyv::{Archive, Archived, Deserialize, Fallible, Resolver, Serialize};
@@ -8,7 +6,6 @@ use crate::u30::U30;
 use crate::UtcTime;
 
 /// An archived [`UtcTime`]
-#[cfg_attr(docsrs, doc(cfg(feature = "rkyv")))]
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct ArchivedUtcTime {
     secs: Archived<i64>,
@@ -16,7 +13,6 @@ pub struct ArchivedUtcTime {
 }
 
 /// The resolver for an archived [`UtcTime`]
-#[cfg_attr(docsrs, doc(cfg(feature = "rkyv")))]
 #[derive(Debug, Clone, Copy)]
 pub struct UtcTimeResolver {
     secs: Resolver<i64>,
@@ -28,7 +24,6 @@ impl Archive for UtcTime {
     type Resolver = UtcTimeResolver;
 
     #[allow(trivial_casts)]
-    #[inline]
     unsafe fn resolve(&self, pos: usize, resolver: Self::Resolver, out: *mut Self::Archived) {
         let (fp, fo) = {
             let fo = &mut (*out).secs as *mut i64;
@@ -46,7 +41,6 @@ impl Archive for UtcTime {
 }
 
 impl<D: Fallible + ?Sized> Deserialize<UtcTime, D> for Archived<UtcTime> {
-    #[inline]
     fn deserialize(&self, deserializer: &mut D) -> Result<UtcTime, D::Error> {
         let secs = Deserialize::<i64, D>::deserialize(&self.secs, deserializer)?;
 
@@ -59,7 +53,6 @@ impl<D: Fallible + ?Sized> Deserialize<UtcTime, D> for Archived<UtcTime> {
 }
 
 impl<S: Fallible + ?Sized> Serialize<S> for UtcTime {
-    #[inline]
     fn serialize(&self, serializer: &mut S) -> Result<Self::Resolver, S::Error> {
         let secs = Serialize::<S>::serialize(&self.secs, serializer)?;
 
