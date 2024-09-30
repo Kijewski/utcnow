@@ -2,8 +2,8 @@ use core::{cmp, fmt, mem};
 
 use rkyv::{Archive, Archived, Deserialize, Fallible, Resolver, Serialize};
 
-use crate::u30::U30;
 use crate::UtcTime;
+use crate::u30::U30;
 
 /// An archived [`UtcTime`]
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]

@@ -1,7 +1,7 @@
 use core::convert::Infallible;
 use core::fmt;
 
-use rustix::time::{clock_gettime, ClockId};
+use rustix::time::{ClockId, clock_gettime};
 
 use crate::{Result, UtcTime};
 

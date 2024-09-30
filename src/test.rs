@@ -1,4 +1,4 @@
-use super::{utcnow, Result, UtcTime, U30};
+use super::{Result, U30, UtcTime, utcnow};
 
 #[test]
 #[allow(unknown_lints)]

@@ -1,6 +1,6 @@
 use core::fmt;
 
-use wasi::{clock_time_get, Errno, CLOCKID_REALTIME};
+use wasi::{CLOCKID_REALTIME, Errno, clock_time_get};
 
 use crate::{Result, UtcTime};
 
