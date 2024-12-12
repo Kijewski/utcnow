@@ -25,18 +25,24 @@ impl Archive for UtcTime {
 
     #[allow(trivial_casts)]
     unsafe fn resolve(&self, pos: usize, resolver: Self::Resolver, out: *mut Self::Archived) {
-        let (fp, fo) = {
-            let fo = &mut (*out).secs as *mut i64;
-            (fo.cast::<u8>().offset_from(out.cast::<u8>()) as usize, fo)
+        let (start, addr_secs) = {
+            let offs_secs = &mut (*out).secs as *mut i64;
+            (
+                offs_secs.cast::<u8>().offset_from(out.cast::<u8>()) as usize,
+                offs_secs,
+            )
         };
-        Archive::resolve(&self.secs, pos + fp, resolver.secs, fo);
+        Archive::resolve(&self.secs, pos + start, resolver.secs, addr_secs);
 
-        let (fp, fo) = {
-            let fo = &mut (*out).nanos as *mut u32;
-            (fo.cast::<u8>().offset_from(out.cast::<u8>()) as usize, fo)
+        let (start, addr_nanos) = {
+            let offs_nanos = &mut (*out).nanos as *mut u32;
+            (
+                offs_nanos.cast::<u8>().offset_from(out.cast::<u8>()) as usize,
+                offs_nanos,
+            )
         };
         let nanos: &u32 = mem::transmute(&self.nanos);
-        Archive::resolve(nanos, pos + fp, resolver.nanos, fo);
+        Archive::resolve(nanos, pos + start, resolver.nanos, addr_nanos);
     }
 }
 

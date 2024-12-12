@@ -1,6 +1,6 @@
 [package]
 name = "utcnow"
-version = "0.2.6"
+version = "0.2.7"
 edition = "2018"
 readme = "README.md"
 categories = ["date-and-time", "no-std"]
@@ -10,13 +10,13 @@ repository = "https://github.com/Kijewski/utcnow"
 description = "Get the current unixtime in a no-std context"
 license = "Apache-2.0"
 
-[features]
-default = ["std", "fallback"]
-fallback = []
-std = []
+[package.metadata.docs.rs]
+all-features = true
+rustdoc-args = ["--generate-link-to-definition", "--cfg=docsrs"]
 
 [dependencies]
 const_fn = "0.4.9"
+rustversion = "1.0.0"
 
 # Optional features:
 arbitrary = { version = "1", default-features = false, optional = true }
@@ -55,9 +55,43 @@ wasm-bindgen = "0.2.0"
 [target.'cfg(all(target_arch = "wasm32", not(target_os = "wasi")))'.dev-dependencies]
 wasm-bindgen-test = "0.3.13"
 
-[package.metadata.docs.rs]
-all-features = true
-rustdoc-args = ["--generate-link-to-definition", "--cfg=docsrs"]
+[features]
+default = ["std", "fallback"]
+fallback = []
+std = []
+
+[lints.rust]
+absolute_paths_not_starting_with_crate = "warn"
+elided_lifetimes_in_paths = "warn"
+explicit_outlives_requirements = "warn"
+meta_variable_misuse = "warn"
+missing_copy_implementations = "warn"
+missing_debug_implementations = "warn"
+missing_docs = "warn"
+non_ascii_idents = "warn"
+noop_method_call = "warn"
+single_use_lifetimes = "warn"
+trivial_casts = "warn"
+unreachable_pub = "warn"
+unused_lifetimes = "warn"
+unused_results = "warn"
+warnings = "warn"
+
+[lints.clippy]
+collapsible_match = "warn"
+expect_used = "warn"
+match_bool = "warn"
+match_ref_pats = "warn"
+match_same_arms = "warn"
+match_single_binding = "warn"
+needless_bool = "deny"
+needless_late_init = "warn"
+needless_match = "warn"
+redundant_guards = "warn"
+redundant_pattern = "warn"
+redundant_pattern_matching = "warn"
+single_match = "warn"
+single_match_else = "warn"
 
 [profile.dev]
 panic = "abort"
