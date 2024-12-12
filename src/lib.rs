@@ -645,8 +645,17 @@ impl From<OsError> for Error {
     }
 }
 
+#[rustversion::before(1.81.0)]
 #[cfg(feature = "std")]
-impl std::error::Error for Error {}
+const _: () = {
+    impl std::error::Error for Error {}
+};
+
+#[rustversion::since(1.81.0)]
+const _: () = {
+    #[cfg_attr(docsrs, doc(cfg(any(feature = "std", rustc = "1.81 or higher"))))]
+    impl core::error::Error for Error {}
+};
 
 /// Could not convert from or to a [`UtcTime`]
 ///

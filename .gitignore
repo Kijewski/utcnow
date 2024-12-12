@@ -23,4 +23,5 @@ Cargo.lock
 
 .*
 !.git*
+.git
 !.readthedocs.yaml
